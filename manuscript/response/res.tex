@@ -1,0 +1,398 @@
+% !TeX encoding = UTF-8
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{lineno}
+\usepackage{times}
+\usepackage{soul, color, xcolor}
+\usepackage{geometry}
+\usepackage{framed}
+\usepackage{boldline}
+\usepackage{setspace}
+\usepackage{multicol}
+\usepackage{tcolorbox}
+\usepackage{array}
+\usepackage{amsmath,amsfonts,epsfig,amssymb}
+\usepackage{CJKutf8}
+\usepackage{threeparttable}
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\usepackage{cite}
+\usepackage[citecolor=blue,linkcolor=blue,colorlinks=true]{hyperref}
+\usepackage{cleveref}
+
+\geometry{a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\soulregister{\cite}7
+\soulregister{\citep}7
+\soulregister{\citet}7
+\soulregister{\ref}7
+\soulregister{\pageref}7
+
+\newcommand{\tr}{^{\bm{\top}}}
+\newcommand{\al}{^{(\alpha)}}
+\newcommand{\s}{\mathrm{sign}}
+\newcommand{\mathhl}[2]{\colorbox{#1}{$\displaystyle #2$}}
+
+\definecolor{b}{rgb}{0.73, 0.85, 0.9}
+
+\newcommand{\hlb}[1]{\sethlcolor{b}\hl{#1}}
+
+\crefname{equation}{}{}
+\crefname{figure}{Fig.}{Figs.}
+\crefrangeformat{figure}{Figs. (#3#1#4)--(#5#2#6)}
+\renewcommand{\thefigure}{R\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+
+\begin{document}
+
+\centerline{\Large \bf Cover Letter}
+\vskip 3 mm
+
+\medskip
+
+\noindent
+\textbf{Title:} {FedPLN: Federated Learning with Prototype Learning Networks on Non-IID Data}
+
+\medskip
+
+\noindent
+\textbf{Manuscript ID:} {IoT-60731-2026 R1}
+
+\medskip
+
+\noindent
+\textbf{Authors:} {Haifeng Dai, Guanghui Wen, Jiaqi Chang, and P. L. Philip}
+
+\bigskip
+
+\bigskip
+
+\noindent
+Dear Editor(s):
+
+\bigskip
+
+Thank you for your work on our manuscript titled ``FedPLN: Federated Learning with Prototype Learning Networks on Non-IID Data (ID: IoT-60731-2026 R1)'', and providing us with the opportunity to revise and resubmit our manuscript.
+The questions and suggestions raised by Reviewer 1 helped clarify the reliability of our work for deployment in IoT scenarios.
+In the revised manuscript, we have added new experiments to carefully address these concerns and provide detailed responses.
+
+\medskip
+
+For the convenience, the comments of Reviewer 1 are summarized as 7 points, and all revised parts are highlighted in \hlb{blue} in the revised manuscript, which primarily include:
+\begin{enumerate}
+    \item \textit{Expanded Experiments}: We have incorporated the WISDM dataset to validate the effectiveness and advantages of our approach in highly heterogeneous IoT scenarios.
+    \item \textit{Enhanced Privacy and System Heterogeneity Analysis}: We have incorporated key references to clarify that our work can be readily extended to th system heterogeneity scenarios and that existing privacy-preserving frameworks can be conveniently integrated.
+\end{enumerate}
+
+\noindent
+In addition, we have moved the pseudocode for FedPLN to the Appendix, as we believe the main text provides a sufficiently clear elucidation of the workflow of FedPLN, and its inclusion in the main text would have been redundant.
+
+\medskip
+
+We believe that we have satisfactorily addressed all the issues raised by Reviewer 1, and we hope it is now acceptable for publication in the \textit{IEEE Internet of Things Journal}.
+Thank you again for your time and consideration.
+
+\bigskip
+
+\bigskip
+
+\noindent
+Yours sincerely,
+
+\smallskip
+
+\noindent
+Haifeng Dai
+\smallskip
+
+\noindent
+Email: haifeng\_dai@seu.edu.cn
+
+\newpage
+\section*{Response to Reviewer 1}
+\parindent 2em
+
+We sincerely thank the reviewer for the meticulous review of our manuscript and the valuable feedback provided.
+We have taken each comment into consideration and implemented corresponding revisions in the latest manuscript.
+In particular, your numerous constructive suggestions regarding the applicability of FedPLN in IoT scenarios have significantly enhanced the alignment of our work with the scope and standards of the IEEE Internet of Things Journal.
+We believe that with these revisions, the quality and completeness of our manuscript have been substantially improved.
+
+Should you have any further questions or suggestions regarding our responses or modifications, we would be happy to continue the discussion and make additional improvements.
+Once again, we deeply appreciate your support and assistance in enhancing our work.
+
+\begin{tcolorbox}[title = {Comment 1},fonttitle = \bfseries]
+    The paper claims significance for IoT environments but evaluates primarily on standard image datasets (MNIST, FashionMNIST, CIFAR-10, CIFAR-100) that do not represent realistic IoT data distributions. The UCI-HAR dataset for IoT scenarios receives minimal experimental attention. This disconnect between the claimed IoT relevance and the evaluation setup weakens the paper's practical contribution.
+    % 论文声称对物联网环境具有重要意义，但主要在标准图像数据集（MNIST、FashionMNIST、CIFAR-10、CIFAR-100）上进行评估，这些数据集并不能代表真实的物联网数据分布。
+    % 针对物联网场景的UCI-HAR数据集获得的实验关注极少。
+    % 这种声称的物联网相关性与评估设置之间的脱节削弱了论文的实际贡献。
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely thank the reviewer for this highly constructive feedback, and completely agree with the reviewer's insightful suggestion to conduct more extensive experiments on IoT datasets.
+First, we would like to clarify our rationale for utilizing standard image datasets (e.g., MNIST, FashionMNIST, CIFAR-10, CIFAR-100).
+While we acknowledge that they do not perfectly represent real-world IoT data distributions, they serve as indispensable and universally recognized benchmarks in the federated learning community.
+Evaluating our framework on these datasets is a standard practice and is essential to establish a fair, direct, and rigorous algorithmic comparison with existing state-of-the-art federated learning baselines.
+
+Regarding IoT scenarios, we had introduced the UCI-HAR dataset in our previous revision and analyzed the results in Sec. V-E.
+However, we fully concur with the reviewer that evaluations on IoT datasets deserve significantly more attention and deeper analysis to validate our practical contributions.
+Therefore, in this current revision, we have further performed experiments on an additional real-world IoT sensor dataset, Wireless Sensor Data Mining (WISDM).
+We have added comprehensive experimental results and detailed discussions regarding UCI-HAR and WISDM datasets in \hlb{the Sec. V-E on Page 13}, as follows:
+
+\leftskip 2em
+\rightskip 2em
+\medskip
+
+``To evaluate FedPLN's efficacy in IoT scenarios, additional experiments were conducted on the UCI Human Activity Recognition (UCI-HAR) dataset [49] and the Wireless Sensor Data Mining (WISDM) dataset [50] under device heterogeneity settings.
+Both datasets, comprising sensor measurements from various human activities, represent standard benchmarks for evaluating machine learning algorithms on resource-constrained IoT devices.
+
+Following standard experimental configurations, the UCI-HAR dataset was distributed across 10 clients using a Dirichlet distribution ($\beta=0.1$) to simulate non-IID data partitioning.
+In contrast, the WISDM dataset includes 36 unique subjects performing six basic human activities, and each client was uniquely assigned the raw sensory data of a single physical subject, thereby inherently capturing natural data skewness.
+To model computational and communication heterogeneity, half of the clients executed 5 local training epochs per communication round with top-$k$ sparsification applied to parameter uploads, while the remaining clients performed 10 local epochs without communication constraints.
+
+The results presented in Fig. 10 demonstrate that FedPLN achieved a final accuracy of 94.46\% on the UCI-HAR dataset, outperforming FedFM (92.75\%) and FedProc (92.98\%).
+Similarly, for the WISDM dataset, FedPLN achieved a final accuracy of 96.62\%, surpassing FedFM (94.35\%) and FedProc (95.11\%), thereby validating its effectiveness in practical IoT environments.
+Furthermore, FedPLN-WF not only reduced the total training time through its wait-free strategy but also achieved competitive accuracy (94.73\% for UCI-HAR and 95.17\% for WISDM).''
+
+\leftskip 0em
+\rightskip 0em
+\medskip
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{../manuscript/figs/har_model.eps}
+    \includegraphics[width=0.45\textwidth]{../manuscript/figs/har_proto.eps}\\
+    \includegraphics[width=0.45\textwidth]{../manuscript/figs/wisdm_model.eps}
+    \includegraphics[width=0.45\textwidth]{../manuscript/figs/wisdm_proto.eps}
+    \caption{The accuracy of FedPLN, FedPLN-WF, FedFM and FedProc on UCI-HAR and WISDM datasets.}
+    \label{fig:har_wisdm_acc}
+\end{figure}
+
+\begin{tcolorbox}[title = {Comment 2},fonttitle = \bfseries]
+	The communication overhead increases by 60.38\% compared to FedAvg (additional 2.02 MB per round), which contradicts the paper's claim of advantages for bandwidth-constrained IoT environments. No analysis is provided on whether this overhead is acceptable for practical IoT deployments or how it scales with the number of clients.
+    % 与FedAvg相比，通信开销增加了60.38%（每轮额外增加2.02MB），这与论文声称的在带宽受限的物联网环境中的优势相矛盾。
+    % 论文未分析这种开销在实际物联网部署中是否可接受，也未分析其如何随客户端数量而扩展。
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We thank the reviewer for highlighting the importance of communication overhead in IoT environments.
+Firstly, although FedPLN introduces an additional 2.02 MB of data per communication round, its significantly accelerated convergence rate results in a lower total communication cost to achieve a specified accuracy.
+Conversely, for a fixed communication budget, FedPLN achieves higher model accuracy, which will be shown in Fig. 11.
+Secondly, for modern IoT devices, this 2.02 MB overhead is fully acceptable in 4G and WiFi environments, especially when weighed against FedPLN's substantial advantages in model performance and convergence speed.
+Finally, regarding the communication load, it is $O(1)$ for each client and $O(N)$ for the server, where $N$ is the number of clients.
+This is consistent with traditional global federated learning methods and was therefore not emphasized in the main text.
+To clarify the communication efficiency, we have now added the following analysis on communication overhead to \hlb{the Sec. V-E on Page 13}:
+
+\leftskip 2em
+\rightskip 2em
+\medskip
+
+``To further assess communication efficiency, Fig. 11 plots the test accuracy against the cumulative communication cost.
+As observed, despite the additional payload required for PLN transmission, FedPLN consistently yields superior accuracy given an identical communication budget.
+Furthermore, our approach not only reaches the specified accuracy with a substantially lower bandwidth cost, but also demonstrates a noticeably higher performance upper bound.
+These findings corroborate the practical superiority of FedPLN for bandwidth-constrained IoT applications.''
+
+\leftskip 0em
+\rightskip 0em
+\medskip
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[b]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../manuscript/figs/har_acc_vs_comm.eps}
+        \subcaption{$Acc_m$ on UCI-HAR dataset}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../manuscript/figs/wisdm_acc_vs_comm.eps}
+        \subcaption{$Acc_m$ on WISDM dataset}
+    \end{subfigure}
+    \caption{The accuracy $Acc_m$ of FedPLN, FedPLN-WF, FedFM and FedProc on (a) UCI-HAR and (b) WISDM datasets with respect to communication cost.}
+    \label{fig:acc_comm}
+\end{figure}
+
+% 出于文章逻辑连贯性，我们未与FedAvg进行对比，而是在UCI-Har和WISDM数据集上与FedFM和FedProc这两个同样基于原型学习的全局联邦学习方法进行了对比。
+
+\begin{tcolorbox}[title = {Comment 3},fonttitle = \bfseries]
+    The paper does not compare against FedProto (AAAI 2022), which is highly relevant and directly addresses federated prototype learning across heterogeneous clients. This represents a significant gap in the related work comparison, making it difficult to assess the novelty and contribution of the proposed approach relative to this closely related prior work.
+    % 论文未与FedProto（AAAI 2022）进行比较，而该论文高度相关，直接解决了异构客户端上的联邦原型学习问题。
+    % 这构成了相关工作对比中的一个显著空白，使得难以评估所提出方法与这一密切相关的前期工作相比的新颖性和贡献。
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We thank the reviewer for highlighting FedProto (FedProto: Federated Prototype Learning across Heterogeneous Clients, AAAI 2022), which is undeniably a pioneering and highly influential work in prototype-based federated learning.
+However, it is not directly comparable to FedPLN due to the following reasons:
+\begin{itemize}
+    \item Different Problem Settings (Personalized vs. Global FL): FedProto is fundamentally designed for Personalized Federated Learning, where no single global model is generated.
+    Instead, clients share abstract class prototypes to regularize their distinct, personalized local models.
+    In contrast, FedPLN is a Global Federated Learning method aiming to train a single, robust, and generalized global model that performs well across all clients.
+    \item Evaluation Incompatibility: Personalized FL methods (FedProto) evaluate the performance of local models on local test sets, whereas Global FL (FedPLN) evaluates a single global model on a unified global test set.
+    Thus, directly comparing their performance is infeasible and would fail to accurately reflect our contributions.
+\end{itemize}
+
+To rigorously demonstrate the novelty and superiority of our approach, we have already conducted extensive experimental comparisons against recent state-of-the-art global prototype-based methods, namely FedFM and FedProc.
+The results clearly show that FedPLN outperforms these highly relevant, same-track baselines.
+
+\begin{tcolorbox}[title = {Comment 4},fonttitle = \bfseries]
+	The privacy analysis is insufficient. While the paper claims FedPLN "avoids explicit leakage of class distributions," no formal privacy analysis or differential privacy guarantees are provided. The claim that not uploading class distributions ensures privacy is problematic since the uploaded PLN parameters could still leak information through inference attacks. Consider citing " https://doi.org/10.1109/ACCESS.2023.3339750" as it provides a structured formal privacy analysis and multi-party parameter leakage evaluation in federated collaborative frameworks, offering directly relevant methodological context for strengthening the privacy guarantees and inference attack resistance analysis in this work.
+    % 隐私分析不足。尽管论文声称FedPLN"避免了类别分布的显式泄露"，但未提供正式的隐私分析或差分隐私保证。
+    % 认为不上传类别分布就能确保隐私的观点存在问题，因为上传的PLN参数仍可能通过推理攻击泄露信息。
+    % 建议引用"https://doi.org/10.1109/ACCESS.2023.3339750"，该文献提供了联邦协作框架中的结构化正式隐私分析和多方参数泄露评估，为加强本工作的隐私保证和推理攻击抗性分析提供了直接相关的方法论背景。
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely thank the reviewer for this insightful comment and apologize for the omission of this highly relevant reference in our previous revision (addressed in the Comment 4 of the previous review round).
+We fully agree that merely withholding explicit class distributions is insufficient to guarantee absolute privacy, as the uploaded model parameters remain susceptible to inference attacks.
+
+To rectify this, we have expanded our privacy discussion in the revised manuscript.
+The paper ``Efficient Data Collaboration Using Multi-Party Privacy Preserving Machine Learning Framework'' offers a framework integrating homomorphic encryption into federated learning, providing a formal privacy guarantee against inference attacks.
+We now explicitly acknowledge the potential vulnerability to inference attacks and cite the recommended paper.
+\hlb{Sec. IV-G on Page 8} has been updated as follows:
+
+\leftskip 2em
+\rightskip 2em
+\medskip
+
+\noindent
+``FedPLN is not originally proposed to specifically address privacy leakage problems, but distribution protection emerges as an inherent privacy advantage.
+For the necessity of exchanging both model and PLN parameters, FedPLN is still vulnerable to inference attacks.
+Recent studies on multi-party privacy-preserving machine learning integrated homomorphic encryption into federated learning, providing a effective solution against inference attacks [47].
+Fortunately, FedPLN can be seamlessly integrated with these techniques, which allows clients to strengthen privacy protection by applying standard privacy-preserving techniques.''
+
+\leftskip 0em
+\rightskip 0em
+\medskip
+
+\begin{tcolorbox}[title = {Comment 5},fonttitle = \bfseries]
+	The PLN architecture is described only at a high level as a "lightweight neural network" without specific architectural details such as layer dimensions, number of neurons, or activation functions. This lack of specificity prevents reproducibility and makes it difficult to assess the actual computational cost.
+    % PLN架构仅在高层被描述为"轻量级神经网络"，没有提供具体的架构细节，如层维度、神经元数量或激活函数。
+    % 这种缺乏具体信息的情况使得实验结果难以复现，也难以评估其实际计算成本。
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We thank the reviewer for pointing out this omission.
+A schematic diagram has been plotted in Fig. 2(b) of the main text to illustrate the basic structure of the PLN.
+But we agree that detailed architectural specifications are necessary for reproducibility and computational assessment.
+To address this, \hlb{Table S1 and Appendix-B has been added as follows} which provides the exact configurations of the PLN used in this work.
+As specified, the PLN consists of an embedding layer, a fully connected layer (i.e., the depth $r=1$), and an output layer, where ReLU is used as the activation function.
+The output dimension of both the embedding layer and the fully connected layer, i.e., the width of PLN, is set to 512 by default.
+
+\leftskip 2em
+\rightskip 2em
+\medskip
+
+\noindent
+``
+The structure of the Prototype Learning Network (PLN) is presented in Fig. 2(b) of the main text, which consists of an embedding layer, $r$ fully connected layers, and an output layer, where $r$ denotes the depth, the width is the output dimension of the embedding layer and the fully connected layers, and the ReLU activation function is applied after each fully connected layer.
+To facilitate reproducibility and provide a clear assessment of the computational cost, the default structure used in our evaluation are presented in Table S1.
+Specifically, the number of fully connected layers is set to $r=1$, and the output dimension of the embedding layer and the fully connected layer is set to 512.
+The learnable parameters of the PLN for each layer are also provided in Table S1, which can be used to estimate the computational cost of the PLN in terms of both memory and floating-point operations (FLOPs).
+''
+\begin{table}[h]
+    \centering
+    \caption{The default structure of the PLN used in our experiments.}
+    \label{tab:pln}
+        \begin{threeparttable}
+            \begin{tabular}{c|cccc}
+                \hline
+                Name & Type & Input & Output & Parameters \\
+                \hline
+                Emb & Embedding & 1 & 512 & 5,120 \\
+                FC & Fully Connected & 512 & 512 & 262,656 \\
+                OP & Fully Connected & 512 & 10 & 5,130 \\
+                \hline
+            \end{tabular}
+            \begin{tablenotes}
+                \footnotesize
+                \item Note: Emb denotes the embedding layer, FC denotes the fully connected layer, and OP denotes the output layer.
+            \end{tablenotes}
+        \end{threeparttable}
+\end{table}
+
+\leftskip 0em
+\rightskip 0em
+\medskip
+
+\noindent
+Specifically, the embedding layer can be implemented using \texttt{torch.nn.Embedding} in PyTorch, which maps class labels to dense vectors of a specified width.
+We hope these additions provide the necessary details regarding the implementation of the proposed PLN.
+
+\begin{tcolorbox}[title = {Comment 6},fonttitle = \bfseries]
+	No actual training time measurements are reported in the results section. The paper claims FedPLN-WF ``reduces overall training time without sacrificing performance'' but provides only the computational complexity analysis (15.74 MFLOPs), not empirical timing comparisons between FedPLN and FedPLN-WF.
+    % 结果部分未报告实际的训练时间测量。
+    % 论文声称FedPLN-WF“在不牺牲性能的情况下减少了整体训练时间”，但仅提供了计算复杂度分析（15.74 MFLOPs），并未给出FedPLN与FedPLN-WF之间的经验时间对比。
+\end{tcolorbox}
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+% 感谢审稿人指出我们并未对FedPLN-WF相对于FedPLN在降低训练时间方面进行实际测量和比较。
+% 和其它FL论文一致，我们仅在是在单机器和单GPU环境下对FedPLN和FedPLN-WF进行训练的，这种情况下，一方面无法获得参数通信的用时，另一方面，无法真正实现服务器端和客户端间以及客户端之间的并行计算。
+% 要真正实现FedPLN-WF训练时间的经验测量，需要在真正分布式环境中部署FedPLN-WF，即在不同物理机器上分别部署服务器和多个客户端，并进行实际的参数通信和并行计算。
+% 正如我们在之前的回复中提到的，我们目前没有分布式环境的部署条件，因此无法对FedPLN-WF的经验训练时间进行测量。
+% 并且，经验时间的测量会受到许多因素的影响，如网络状况、服务器和客户端的硬件性能等，这些因素在不同的实验环境中可能会有很大的差异，因此难以提供一个具有普遍意义的经验时间比较。
+% 基于以上限制，我们仅提供了计算复杂度分析。
+% 但是，FedPLN-WF在降低整体训练时间方面的优势是基于其设计的并行计算-通信的机制，理论上是有效的。
+% 正如我们在正文中所分析的，FedPLN-WF通过允许模型（PLN）在完成训练之后立即进行通信，而不必等待PLN（模型）训练完成后再统一进行通信，从而实现了计算和通信的重叠，理论上可以显著减少整体训练时间。
+% 我们希望这些解释能够清楚地说明为什么我们没有提供实际的训练时间比较，并且为什么我们认为FedPLN-WF在降低整体训练时间方面具有理论上的优势。
+
+We thank the reviewer for this insightful comment regarding the absence of empirical wall-clock time comparisons between FedPLN and FedPLN-WF.
+Following the standard practice in algorithm-centric federated learning research, our evaluations were conducted in a simulated, single-machine and single-GPU environment.
+In this paradigm, server and client operations are executed sequentially, which precludes the measurement of actual communication latency and the realization of true parallelism.
+Meaningful empirical measurements would require a physically distributed testbed with separate machines for the server and clients to perform genuine network communication and parallel processing.
+Furthermore, empirical training time is highly sensitive to external factors like network conditions and hardware, which vary across environments, complicating the generalizability of any such comparison.
+
+Consequently, due to these limitations, we provided theoretical computational complexity (FLOPs) as our primary, hardware-agnostic metrics.
+Despite this, our claim that FedPLN-WF reduces overall training time is theoretically sound.
+As analyzed in the manuscript, its mechanism allows the PLN to initiate communication immediately after its training, without waiting for the model's training to complete.
+By overlapping computation and communication, FedPLN-WF effectively masks communication latency, which theoretically and systematically reduces the overall training time in a true distributed setting.
+We hope that these explanations clarify the rationale for the absence of empirical training time comparisons and substantiate our theoretical argument for FedPLN-WF's advantage in reducing overall training time.
+
+\begin{tcolorbox}[title = {Comment 7},fonttitle = \bfseries]
+	The evaluation does not consider straggler effects or system heterogeneity across IoT devices. The paper assumes homogeneous computational capabilities across clients, which is unrealistic for IoT deployments where devices range from constrained sensors to more capable gateways. Consider citing " https://doi.org/10.3390/math11194189" and "https://doi.org/10.1109/TETC.2026.3667101" as they provide a structured treatment of system heterogeneity and straggler effects in scalable federated learning across distributed heterogeneous participants, offering directly relevant methodological context for addressing the device heterogeneity limitations identified in this work.
+    % 评估未考虑延迟效应或物联网设备间的系统异构性。论文假设所有客户端具有同等的计算能力，这在物联网部署中是不现实的，因为物联网设备范围从受限的传感器到功能更强的网关不等。
+    % 建议引用"https://doi.org/10.3390/math11194189"和"https://doi.org/10.1109/TETC.2026.3667101"，这两篇文献提供了针对分布式异构参与者的可扩展联邦学习中系统异构性和延迟效应的结构化处理方法，为解决本工作中识别的设备异构性限制提供了直接相关的方法论背景。
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We fully agree with the reviewer that system heterogeneity and straggler effects are inevitable practical deployment and application issues in real-world IoT environments.
+Building upon our discussion in response to Comment 5 of the previous review round regarding device heterogeneity and communication constraints, we have actively considered computational heterogeneity across clients.
+To address this, we designed a simulated evaluation in Sec. V-E to model clients with varying computational capabilities and limited communication bandwidths.
+Specifically, computationally constrained clients execute 5 local training epochs, whereas more capable clients execute 10.
+Additionally, clients with limited communication bandwidth utilize top-$k$ sparsification to reduce communication overhead.
+We acknowledge that this is a simplified simulation and may not fully capture the extreme complexity and diversity of system heterogeneity in actual IoT deployments.
+Nevertheless, we believe it empirically demonstrates FedPLN's robustness and performance stability under basic heterogeneous and resource-constrained conditions.
+
+Furthermore, we sincerely thank the reviewer for recommending the two highly insightful papers, which we have carefully studied.
+The paper titled ``Enhancing Brain Tumor Segmentation Accuracy through Scalable Federated Learning with Advanced Data Privacy and Security Measures'' highlights the use of asynchronous protocols that allow clients continue to train when straggling.
+The paper titled ``Breakout Local Search for Load-Balanced Federated Learning in Multi-BS Networks'' proposes the Breakout Local Search (BLS) algorithm to resolve straggler effects through the joint optimization of latency efficiency and load-balanced participant selection.
+Both works provide valuable and structured methodological contexts for addressing straggler effects and system heterogeneity.
+However, fully integrating these advanced methods at this stage would require extensive additional experiments and a substantial rewriting of the manuscript.
+More importantly, the primary focus and core contribution of our current work lie in resolving data heterogeneity (statistical heterogeneity) rather than device heterogeneity (system heterogeneity).
+Therefore, seamlessly incorporating these system-level optimization strategies into the FedPLN framework represents an excellent direction for our future work.
+Accordingly, we have added a dedicated discussion about these two papers in \hlb{Sec. IV-E on Page 8}, as follows:
+
+\leftskip 2em
+\rightskip 2em
+\medskip
+
+\noindent
+``Specifically, model compression techniques can significantly reduce communication and computational loads [43].
+To further alleviate straggler effects caused by system heterogeneity, approaches like Fed-OGD [44] and CoCFL [45] utilize gradient caching, orthogonalization, or hybrid synchronization mechanisms, while recent structured treatments propose load-balanced participant selection strategies [46].
+Moreover, asynchronous FL protocols [43], such as temporal aggregation, offer promising solutions for network unreliability by allowing clients to operate independently.''
+
+\end{document}

@@ -2,7 +2,7 @@
 clear; clc; close all;
 addpath('simulations', 'networks');
 
-RUN_SIMULATION = false;  % 控制是否运行仿真 (true: 运行并保存, false: 直接读取并绘图)
+RUN_SIMULATION = true;  % 控制是否运行仿真 (true: 运行并保存, false: 直接读取并绘图)
 
 % ==========================================
 % 1. 基本参数设置 (针对噪声影响 分析)
@@ -14,12 +14,12 @@ DYNA.N = 200;           % 节点数
 DYNA.K = 5;             % 层数
 DYNA.alpha = 0.05;      % 层内扩散强度
 DYNA.beta  = 0.1 * DYNA.alpha;  % 层间耦合强度
-DYNA.T_END = 500;      % 扫描点仿真时长
+DYNA.T_END = 500;       % 扫描点仿真时长
 DYNA.steps = 2;         % 输出记录点数 (对 A 统计影响较小)
 DYNA.init_perturb = 0.1;
 
 % --- 待对比的噪声强度列表 (eta) ---
-ETA_LIST = [0, 0.3, 0.5];
+ETA_LIST = [0, 1, 2];
 
 % --- 扫描范围设置 (Sigma Range) ---
 DYNA.sigma_min  = 0;
@@ -99,8 +99,8 @@ annotation(h, 'textbox', [0.026, 0.86, 0.08, 0.08], ...
     'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
 
 % 导出图像
-plots_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'manuscript', 'V2', 'manuscirpt', 'figures');
-if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
-out_img = fullfile(plots_dir, 'fig1a.eps');
-exportgraphics(h, out_img);
-fprintf('[DONE] 绘图已更新: %s\n', out_img);
+% plots_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'manuscript', 'V2', 'manuscirpt', 'figures');
+% if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
+% out_img = fullfile(plots_dir, 'fig1a.eps');
+% exportgraphics(h, out_img);
+% fprintf('[DONE] 绘图已更新: %s\n', out_img);

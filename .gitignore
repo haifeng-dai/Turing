@@ -13,4 +13,5 @@
 *test*
 *.xdv
 *.dvi
+*.synctex(busy)
 .DS_Store

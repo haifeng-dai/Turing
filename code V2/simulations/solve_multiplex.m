@@ -29,6 +29,14 @@ L_INTER_BIG = kron(cfg.L_inter, speye(N));
 % 合成有效全系统算子
 L_EFF = cfg.alpha * L_INTRA_ALL + cfg.beta * L_INTER_BIG;
 
+% 为逐边独立噪声预构造全多层网络的关联矩阵。每条无向边仅保留一次，
+% 其两端在 B 中分别取 +1 和 -1；edge_coeff 区分层内 alpha 与层间 beta。
+% 该结构在整个仿真过程中复用，避免每个时间步重建随机拉普拉斯矩阵。
+if cfg.noise ~= 0
+    [B_edge, edge_coeff] = build_edge_incidence(current_L_intra, cfg.L_inter, N, ...
+        cfg.alpha, cfg.beta);
+end
+
 % 3. 初始化状态
 if isfield(cfg, 'y0') && ~isempty(cfg.y0)
     y = cfg.y0(:);
@@ -49,9 +57,8 @@ Y(1, :) = y';
 current_sample = 2;
 
 % 5. 仿真核心逻辑
-% --- 5.0 预生成全过程的公共布朗增量 (强制锁定随机种子以确保噪声一致性) ---
+% 固定随机种子，确保每次求解使用相同的逐边独立噪声序列。
 rng(1024, 'twister');
-dW_all = sqrt(dt) * randn(total_steps, 1);
 
 % --- 5.1 性能控制变量 ---
 A_sum = 0; A_count = 0;
@@ -59,21 +66,29 @@ A_start_step = floor(0.8 * total_steps);
 prev_A = -1; % 用于收敛探测逻辑
 
 for n = 1:total_steps
-    % --- 5.1 提取当前状态并领取随机增量 ---
-    dW = dW_all(n);
-
-    % --- 5.2 计算局部动力学响应 ---
+    % --- 5.1 计算局部动力学响应 ---
     f = ((35 + 16*u - u.^2)/9 - v) .* u;
     g = (u - (1 + 0.4*v)) .* v;
 
-    % --- 5.3 全系统扩散项计算 ---
+    % --- 5.2 全系统扩散项计算 ---
     Lu = -L_EFF * u;
     Lv = -L_EFF * v;
 
-    % --- 5.4 状态原地更新 (优化：彻底消除循环内下标索引开销) ---
-    % 将 y 的更新改为 u/v 的直接累加，只在采样时写回 y
-    u = u + (f + Lu) * dt + (cfg.noise * Lu) * dW;
-    v = v + (g + cfg.sigma * Lv) * dt + (cfg.noise * cfg.sigma * Lv) * dW;
+    % --- 5.3 逐边独立的乘性噪声 ---
+    % 同一条边在 u/v 方程中共用 dW_edge；不同无向边彼此独立。
+    if cfg.noise ~= 0
+        state_diffs = B_edge * [u, v];
+        dW_edge = sqrt(dt) * randn(length(edge_coeff), 1);
+        edge_fluxes = edge_coeff .* state_diffs .* dW_edge;
+        noise_terms = -cfg.noise * (B_edge' * edge_fluxes);
+
+        % 将 y 的更新改为 u/v 的直接累加，只在采样时写回 y。
+        u = u + (f + Lu) * dt + noise_terms(:, 1);
+        v = v + (g + cfg.sigma * Lv) * dt + cfg.sigma * noise_terms(:, 2);
+    else
+        u = u + (f + Lu) * dt;
+        v = v + (g + cfg.sigma * Lv) * dt;
+    end
 
     % 极限截断 (非负性约束向量化)
     u(u < 1e-6) = 1e-6;
@@ -138,4 +153,44 @@ else
     cfg.A_final = sqrt(sum((u - 5).^2 + (v - 10).^2));
 end
 t = linspace(0, cfg.T_END, cfg.steps);
+end
+
+function [B_edge, edge_coeff] = build_edge_incidence(L_intra, L_inter, N, alpha, beta)
+% BUILD_EDGE_INCIDENCE 由拉普拉斯矩阵的上三角非零元构造一次无向边关联矩阵。
+K = length(L_intra);
+edge_from = cell(K + 1, 1);
+edge_to = cell(K + 1, 1);
+edge_coeff_cells = cell(K + 1, 1);
+
+for k = 1:K
+    [row, col] = find(triu(-L_intra{k}, 1));
+    offset = (k - 1) * N;
+    edge_from{k} = offset + row;
+    edge_to{k} = offset + col;
+    edge_coeff_cells{k} = alpha * ones(length(row), 1);
+end
+
+% 层间边连接相同 node ID 的两个层；L_inter 的上三角给出每条无向层间边。
+[layer_from, layer_to] = find(triu(-L_inter, 1));
+inter_edge_count = length(layer_from) * N;
+inter_from = zeros(inter_edge_count, 1);
+inter_to = zeros(inter_edge_count, 1);
+cursor = 1;
+node_ids = (1:N)';
+for e = 1:length(layer_from)
+    idx = cursor:(cursor + N - 1);
+    inter_from(idx) = (layer_from(e) - 1) * N + node_ids;
+    inter_to(idx) = (layer_to(e) - 1) * N + node_ids;
+    cursor = cursor + N;
+end
+edge_from{end} = inter_from;
+edge_to{end} = inter_to;
+edge_coeff_cells{end} = beta * ones(inter_edge_count, 1);
+
+edge_from = vertcat(edge_from{:});
+edge_to = vertcat(edge_to{:});
+edge_coeff = vertcat(edge_coeff_cells{:});
+edge_count = length(edge_coeff);
+B_edge = sparse([(1:edge_count)'; (1:edge_count)'], [edge_from; edge_to], ...
+    [ones(edge_count, 1); -ones(edge_count, 1)], edge_count, N * K);
 end

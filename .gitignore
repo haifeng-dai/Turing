@@ -11,4 +11,6 @@
 *.synctex
 *.mat
 *test*
+*.xdv
+*.dvi
 .DS_Store

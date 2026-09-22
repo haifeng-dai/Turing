@@ -1,0 +1,582 @@
+% !TeX program = xelatex
+% !TeX encoding = UTF-8
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{lineno}
+\usepackage{times}
+\usepackage{soul, color, xcolor}
+\usepackage{geometry}
+\usepackage{framed}
+\usepackage{boldline}
+\usepackage{setspace}
+\usepackage{multicol}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable}
+\tcbset{breakable}
+\usepackage{array}
+\usepackage{amsmath,amsfonts,epsfig,amssymb}
+\usepackage[UTF8, scheme=plain, fontset=fandol]{ctex}
+\usepackage{threeparttable}
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\usepackage{cite}
+\usepackage[citecolor=blue,linkcolor=blue,colorlinks=true]{hyperref}
+\usepackage{cleveref}
+
+\geometry{a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\soulregister{\cite}7
+\soulregister{\citep}7
+\soulregister{\citet}7
+\soulregister{\ref}7
+\soulregister{\pageref}7
+
+\newcommand{\tr}{^{\bm{\top}}}
+\newcommand{\al}{^{(\alpha)}}
+\newcommand{\s}{\mathrm{sign}}
+\newcommand{\mathhl}[2]{\colorbox{#1}{$\displaystyle #2$}}
+
+\definecolor{b}{rgb}{0.73, 0.85, 0.9}
+
+\newcommand{\hlb}[1]{\sethlcolor{b}\hl{#1}}
+\newcommand{\zhtranslationfirst}[1]{%
+    \par\medskip\noindent
+    {\small\color{blue!60!black}\textbf{中文翻译：}#1}\par
+}
+\newcommand{\zhtranslation}[1]{%
+    \par\smallskip\noindent
+    {\small\color{blue!60!black}#1}\par
+}
+
+\crefname{equation}{}{}
+\crefname{figure}{Fig.}{Figs.}
+\crefrangeformat{figure}{Figs. (#3#1#4)--(#5#2#6)}
+\renewcommand{\thefigure}{R\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+
+\begin{document}
+
+\centerline{\Large \bf Cover Letter}
+\vskip 3 mm
+
+\medskip
+
+\noindent
+\textbf{Title:} {FedPLN: Federated Learning with Prototype Learning Networks on Non-IID Data}
+
+\medskip
+
+\noindent
+\textbf{Manuscript ID:} {IoT-60731-2026 R1}
+
+\medskip
+
+\noindent
+\textbf{Authors:} {Haifeng Dai, Guanghui Wen, Jiaqi Chang, and P. L. Philip}
+
+\bigskip
+
+\bigskip
+
+\noindent
+Dear Editor(s):
+
+\bigskip
+
+Thank you for your work on our manuscript titled ``FedPLN: Federated Learning with Prototype Learning Networks on Non-IID Data (ID: IoT-60731-2026 R1)'', and providing us with the opportunity to revise and resubmit our manuscript. The questions and suggestions raised by Reviewer 1 helped clarify the reliability of our work for deployment in IoT scenarios. In the revised manuscript, we have added new experiments to carefully address these concerns and provide detailed responses.
+
+\medskip
+
+For the convenience, the comments of Reviewer 1 are summarized as 7 points, and all revised parts are highlighted in \hlb{blue} in the revised manuscript, which primarily include:
+\begin{enumerate}
+    \item \textit{Expanded Experiments}: We have incorporated the WISDM dataset to validate the effectiveness and advantages of our approach in highly heterogeneous IoT scenarios.
+    \item \textit{Enhanced Privacy and System Heterogeneity Analysis}: We have incorporated key references to clarify that our work can be readily extended to th system heterogeneity scenarios and that existing privacy-preserving frameworks can be conveniently integrated.
+\end{enumerate}
+
+\noindent
+In addition, we have moved the pseudocode for FedPLN to the Appendix, as we believe the main text provides a sufficiently clear elucidation of the workflow of FedPLN, and its inclusion in the main text would have been redundant.
+
+\medskip
+
+We believe that we have satisfactorily addressed all the issues raised by Reviewer 1, and we hope it is now acceptable for publication in the \textit{IEEE Internet of Things Journal}.
+Thank you again for your time and consideration.
+
+\bigskip
+
+\bigskip
+
+\noindent
+Yours sincerely,
+
+\smallskip
+
+\noindent
+Haifeng Dai
+\smallskip
+
+\noindent
+Email: haifeng\_dai@seu.edu.cn
+
+\newpage
+\section*{Response to the Associate Editor-in-Chief}
+\parindent 2em
+
+\begin{tcolorbox}[title = {Comment},fonttitle = \bfseries]
+    Based on the comments and evaluation of the reviewers and the guest editor, the paper needs to be thoroughly revised.
+    \zhtranslationfirst{根据审稿人和客座编辑的意见与评估，论文需要进行全面修改。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely thank the reviewer for this highly constructive feedback, and completely agree with the reviewer's insightful suggestion to conduct more extensive experiments on IoT datasets.
+
+\leftskip 2em
+\rightskip 2em
+\medskip
+
+``To ''
+
+\leftskip 0em
+\rightskip 0em
+\medskip
+
+\newpage
+\section*{Response to the Guest Editor}
+\parindent 2em
+
+\begin{tcolorbox}[title = {Comment},fonttitle = \bfseries]
+    To sum up, three reviewers have gone through your manuscript and provided several technical comments. The reviewers acknowledge that the interplay between multiplex topology and multiplicative noise in Turing pattern formation is interesting. However, they think that the multilayer construction, noise formulation, and relation between the stability analysis and Turing instability should be clarified. Besides, the claims regarding hysteresis elimination, non-monotonic inter-layer coupling, and scale-invariant behavior in BA networks require stronger statistical, spectral, and comparative evidence. The normalization of the order parameter and the robustness under more general multilayer structures should also be reconsidered. Please revise the paper according to the submitted comments.
+    \zhtranslationfirst{总而言之，三位审稿人已经审阅了你们的稿件，并提出了若干技术性意见。}
+    \zhtranslation{审稿人认为，多重网络拓扑与乘性噪声在图灵斑图形成过程中的相互作用具有一定的研究意义。}
+    \zhtranslation{然而，他们认为，论文需要进一步阐明多层结构的构建方式、噪声的表述，以及稳定性分析与图灵失稳之间的关系。}
+    \zhtranslation{此外，关于滞后现象消除、层间耦合的非单调作用以及 BA 网络中尺度不变行为的论断，还需要更充分的统计、谱分析和对比证据支持。}
+    \zhtranslation{同时，还应重新审视序参量的归一化方式，以及研究结论在更一般多层结构下的稳健性。}
+    \zhtranslation{请根据所提交的意见修改论文。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely thank the reviewer for this highly constructive feedback, and completely agree with the reviewer's insightful suggestion to conduct more extensive experiments on IoT datasets.
+
+\leftskip 2em
+\rightskip 2em
+\medskip
+
+``To ''
+
+\leftskip 0em
+\rightskip 0em
+\medskip
+
+\newpage
+\section*{Response to Reviewer 1}
+\parindent 2em
+
+We sincerely thank the reviewer for the meticulous review of our manuscript and the valuable feedback provided.
+We have taken each comment into consideration and implemented corresponding revisions in the latest manuscript.
+In particular, your numerous constructive suggestions regarding the applicability of FedPLN in IoT scenarios have significantly enhanced the alignment of our work with the scope and standards of the IEEE Internet of Things Journal.
+We believe that with these revisions, the quality and completeness of our manuscript have been substantially improved.
+
+Should you have any further questions or suggestions regarding our responses or modifications, we would be happy to continue the discussion and make additional improvements.
+Once again, we deeply appreciate your support and assistance in enhancing our work.
+
+\begin{tcolorbox}[title = {General Comment},fonttitle = \bfseries]
+    This paper investigates Turing pattern formation in multiplex-networked activator-inhibitor systems by incorporating state-dependent multiplicative noise into both intra-layer and inter-layer diffusion processes, where noise intensity is proportional to local density differences. Using stability theory for stochastic differential equations, the authors derive a sufficient condition for almost sure asymptotic stability and conduct numerical simulations based on the Mimura–Murray model. The results show that multiplicative noise lowers critical thresholds and eliminates subcritical hysteresis, while inter-layer coupling exhibits a complex non-monotonic influence on instability. Topological analysis reveals scale-invariant robustness in BA networks, where Turing onset is governed by structural heterogeneity rather than network size or layer count, in contrast to the scale-sensitive behavior of ER and WS networks. These findings offer new insights into how multiplex architecture and stochastic fluctuations jointly drive self-organized pattern formation in complex systems. This paper is well written and clearly presented. Here are some specific suggestions for the paper.
+    \zhtranslationfirst{本文通过在层内和层间扩散过程中引入状态依赖的乘性噪声，研究了多重网络上的激活因子—抑制因子系统中的图灵斑图形成，其中噪声强度与局部密度差成正比。}
+    \zhtranslation{作者运用随机微分方程稳定性理论，推导了几乎必然渐近稳定的一个充分条件，并基于 Mimura–Murray 模型开展了数值模拟。}
+    \zhtranslation{结果表明，乘性噪声降低了临界阈值并消除了亚临界滞后，而层间耦合对失稳呈现出复杂的非单调影响。}
+    \zhtranslation{拓扑分析揭示了 BA 网络具有尺度不变的稳健性，其中图灵斑图的起始由结构异质性而非网络规模或层数决定，这与 ER 和 WS 网络对尺度敏感的行为形成鲜明对比。}
+    \zhtranslation{这些发现为理解多重网络结构与随机涨落如何共同驱动复杂系统中的自组织斑图形成提供了新的见解。}
+    \zhtranslation{本文写作良好、表述清晰。以下是对论文的一些具体建议。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely thank
+% 感谢审稿人的认可
+
+\leftskip 2em
+\rightskip 2em
+\medskip
+
+``To ''
+
+\leftskip 0em
+\rightskip 0em
+\medskip
+
+\newpage
+\begin{tcolorbox}[title = {Comment 1},fonttitle = \bfseries]
+    The Introduction correctly identifies that Turing patterns in multiplex networks with multiplicative noise remain underexplored. However, the current gap statement is somewhat passive and generic. The manuscript would benefit from a clearer articulation of why this combination is nontrivial. Specifically, the authors should explicitly discuss how multiplex topology and state-dependent noise interact synergistically, and why this interaction cannot be inferred from prior single-layer or deterministic multiplex studies. A more assertive framing will better justify the necessity of this work to the reader.
+    \zhtranslationfirst{引言正确地指出，具有乘性噪声的多重网络中的图灵斑图仍缺乏充分研究。}
+    \zhtranslation{然而，目前对研究空白的陈述较为被动且笼统。}
+    \zhtranslation{如果能更清楚地说明为何这种组合具有非平凡性，稿件将会得到改善。}
+    \zhtranslation{具体而言，作者应明确讨论多重网络拓扑与状态依赖噪声如何产生协同作用，以及为何无法从以往的单层网络研究或确定性多重网络研究中推断出这种相互作用。}
+    \zhtranslation{采用更鲜明有力的表述，将能使读者更充分地认识到开展本研究的必要性。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely thank the reviewer for this highly constructive feedback, and completely agree with the reviewer's insightful suggestion to conduct more extensive experiments on IoT datasets.
+
+\leftskip 2em
+\rightskip 2em
+\medskip
+
+``To ''
+
+\leftskip 0em
+\rightskip 0em
+\medskip
+
+\newpage
+\begin{tcolorbox}[title = {Comment 2},fonttitle = \bfseries]
+    While the manuscript extends the deterministic multiplex framework of Asllani et al. [37] in several important ways, these distinctions are currently scattered across sections. I strongly recommend adding a concise remark or discussion paragraph that synthesizes these differences. Particular emphasis should be placed on the newly discovered non-monotonic and saturation-regulated role of inter-layer coupling, which contrasts sharply with the monotonic promotion of instability reported in [37]. Explicitly contrasting these findings will immediately clarify the qualitative novelty of this study.
+    \zhtranslationfirst{尽管本文在 Asllani 等人文献 [37] 的确定性多重网络框架基础上进行了若干重要扩展，但这些差异目前分散在各个章节中。}
+    \zhtranslation{我强烈建议增加一段简短的评述或讨论，对这些差异进行归纳总结。}
+    \zhtranslation{尤其应强调新发现的层间耦合所具有的非单调作用和饱和调节作用，因为这与文献 [37] 所报道的对失稳的单调促进作用形成鲜明对比。}
+    \zhtranslation{明确对比这些发现，将能直观地凸显本研究在定性层面的新颖性。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely
+
+\newpage
+\begin{tcolorbox}[title = {Comment 3},fonttitle = \bfseries]
+    The discovery of scale-invariant Turing thresholds in BA networks is arguably the most striking empirical contribution of this work. However, its broader significance is currently understated. The authors should expand the discussion to frame this as a structural universality: namely, that in scale-free multiplex systems, Turing onset is governed by hub-driven heterogeneity rather than system size, layer count, or average degree. Explicitly contrasting this behavior with the pronounced scale sensitivity of ER and WS networks will sharpen the impact of this finding and position it as a generalizable principle for self-organization on multilayer networks.
+    \zhtranslationfirst{BA 网络中尺度不变的图灵阈值可以说是本研究最引人注目的实证贡献。}
+    \zhtranslation{然而，目前对其更广泛意义的阐述还不够充分。}
+    \zhtranslation{作者应扩展相关讨论，将其概括为一种结构普适性：即在无标度多重网络系统中，图灵斑图的起始由枢纽节点驱动的异质性所决定，而非由系统规模、层数或平均度所决定。}
+    \zhtranslation{将这一行为与 ER 和 WS 网络显著的尺度敏感性进行明确对比，将进一步突出该发现的影响，并将其确立为多层网络自组织的一项可推广原理。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely
+
+\newpage
+\begin{tcolorbox}[title = {Comment 4},fonttitle = \bfseries]
+    To improve readability and ensure the paper’s novelty is immediately apparent to editors and reviewers, I recommend adding a short “Main Contributions” paragraph before the roadmap sentence at the end of the Introduction. This paragraph should succinctly enumerate the core advances of the study (e.g., the novel noise model, the stability condition, the non-monotonic coupling effect, and the BA scale-invariance discovery). A scannable contribution summary greatly facilitates the review process.
+    \zhtranslationfirst{为提高可读性，并确保编辑和审稿人能够立即了解论文的创新之处，我建议在引言末尾的文章结构说明之前增加一段简短的“主要贡献”。}
+    \zhtranslation{该段应简明列举本研究的核心进展，例如新的噪声模型、稳定性条件、非单调耦合效应以及 BA 网络尺度不变性的发现。}
+    \zhtranslation{一份便于快速浏览的贡献总结将极大地方便评审过程。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely
+
+\newpage
+\begin{tcolorbox}[title = {Comment 5},fonttitle = \bfseries]
+    Theorem 1 provides a sufficient condition for almost sure asymptotic stability, which is a technically solid result. However, the authors should explicitly interpret the roles of the key quantities in the condition: how $\lambda_2$ reflects topological connectivity, how $\lambda_{NK}$ captures spectral width, and how noise intensity $\eta$ interacts with these spectral properties. Reframing this theorem not merely as a conservative criterion but as a first analytical benchmark that decouples topology, noise, and stability will significantly enhance its perceived theoretical value.
+    \zhtranslationfirst{定理 1 给出了几乎必然渐近稳定的一个充分条件，这是一项技术上扎实的结果。}
+    \zhtranslation{然而，作者应明确解释该条件中各个关键量的作用：$\lambda_2$ 如何反映拓扑连通性，$\lambda_{NK}$ 如何刻画谱宽度，以及噪声强度 $\eta$ 如何与这些谱性质相互作用。}
+    \zhtranslation{不应仅将该定理表述为一个保守判据，而应将其重新定位为首个能够将拓扑、噪声与稳定性解耦的分析基准，这将显著提升其理论价值。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely
+
+\newpage
+\section*{Response to Reviewer 2}
+\parindent 2em
+
+We sincerely thank the reviewer for the meticulous review of our manuscript and the valuable feedback provided.
+We have taken each comment into consideration and implemented corresponding revisions in the latest manuscript.
+In particular, your numerous constructive suggestions regarding the applicability of FedPLN in IoT scenarios have significantly enhanced the alignment of our work with the scope and standards of the IEEE Internet of Things Journal.
+We believe that with these revisions, the quality and completeness of our manuscript have been substantially improved.
+
+Should you have any further questions or suggestions regarding our responses or modifications, we would be happy to continue the discussion and make additional improvements.
+Once again, we deeply appreciate your support and assistance in enhancing our work.
+
+\begin{tcolorbox}[title = {General Comment},fonttitle = \bfseries]
+    The paper studies how multilayer network structure and multiplicative noise influence Turing pattern formation in an activator-inhibitor system. The main conclusions are that multiplicative noise facilitates pattern formation and reduces the observed hysteresis, that inter-layer coupling can either promote or suppress Turing instability depending on the intra-layer diffusion, and that BA networks show more robust thresholds than ER and WS networks when connectivity, network size or the number of layers is changed. The study is interesting, but several aspects of the multilayer construction and the interpretation of the results need to be clarified.
+    \zhtranslationfirst{本文研究了多层网络结构和乘性噪声如何影响激活因子—抑制因子系统中的图灵斑图形成。}
+    \zhtranslation{主要结论是：乘性噪声促进斑图形成并减弱所观察到的滞后现象；层间耦合会根据层内扩散的不同而促进或抑制图灵失稳；当连通性、网络规模或层数发生变化时，BA 网络表现出比 ER 和 WS 网络更稳健的阈值。}
+    \zhtranslation{这项研究很有意义，但仍需澄清多层网络构建和结果解释方面的若干问题。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely thank
+% 感谢审稿人的认可
+
+\leftskip 2em
+\rightskip 2em
+\medskip
+
+``To ''
+
+\leftskip 0em
+\rightskip 0em
+\medskip
+
+\newpage
+\begin{tcolorbox}[title = {Comment 1 Construction of the multilayer network},fonttitle = \bfseries]
+    The authors should explain more explicitly how the multilayer network is constructed. It appears that every layer contains the same N node identities and that node i in layer k is connected between layers only to copies of node i in the other layers. However, this is not immediately clear. The authors should specify whether the networks inside the different layers are identical copies, independently generated networks, or correlated networks. They should also state the value of K used in Figures 1 to 4 and whether the inter-layer adjacency is always a complete graph. If all layers are connected to all other layers, there are no boundary or terminal layers, and this should be made clear. A small schematic showing two or three layers, the edges inside each layer and the connections between corresponding nodes would greatly help the reader.
+    \zhtranslationfirst{作者应更明确地说明多层网络是如何构建的。}
+    \zhtranslation{看起来每一层都包含相同的 $N$ 个节点标识，并且第 $k$ 层中的节点 $i$ 仅与其他层中节点 $i$ 的副本建立层间连接。然而，这一点目前并不直观清楚。}
+    \zhtranslation{作者应说明不同层内的网络是完全相同的副本、独立生成的网络，还是彼此相关的网络。}
+    \zhtranslation{还应说明图 1 至图 4 中所采用的 $K$ 值，以及层间邻接关系是否始终为完全图。}
+    \zhtranslation{如果所有层都与其他所有层相连，那么就不存在边界层或末端层，应对此予以明确说明。}
+    \zhtranslation{增加一个包含两层或三层、展示各层内部边以及对应节点之间连接关系的小型示意图，将对读者大有帮助。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely thank the reviewer for this highly constructive feedback, and completely agree with the reviewer's insightful suggestion to conduct more extensive experiments on IoT datasets.
+
+\leftskip 2em
+\rightskip 2em
+\medskip
+
+``To ''
+
+\leftskip 0em
+\rightskip 0em
+\medskip
+
+\newpage
+\begin{tcolorbox}[title = {Comment 2 Relation between multiplicative noise and the multilayer structure},fonttitle = \bfseries]
+    The effect of multiplicative noise is interesting, but it is not yet clear which part of this effect specifically requires a multilayer network. The same noise construction can in principle be applied to a single-layer network. The authors should therefore compare $K = 1$ with $K > 1$, or provide a phase diagram in which both noise intensity and inter-layer coupling are varied. This would show whether the layers qualitatively change the action of the noise or simply shift the instability threshold.
+
+    \medskip
+
+    A relevant comparison is the recent study by Khan, Suen and Tang on a stochastic Brusselator. They found that multiplicative noise with the same intensity on both species can suppress Turing instability, while unequal noise intensities, including noise acting mainly on one species, can induce instability. ([arXiv][1]) In the present model, the same random process is used for the activator and inhibitor, but the noise term for the inhibitor is multiplied by the diffusion ratio $\sigma$. Therefore, the effective noise amplitudes acting on the two species are not equal. The observed promotion of pattern formation could consequently be related to this asymmetry, rather than being a specific effect of multilayer structure. It would be useful to discuss this possibility and test whether changing K or the inter-layer coupling modifies this noise-induced effect.
+
+    \medskip
+
+    Relevant reference:
+
+    \medskip
+
+    Q. Khan, A. Suen and B. Q. Tang, “Turing instability suppressed and induced by multiplicative noise in Brusselator system,” Communications in Nonlinear Science and Numerical Simulation 151, 109092 (2025), DOI: 10.1016/j.cnsns.2025.109092. ([EdUHK Research Repository][2])
+    \zhtranslationfirst{乘性噪声的作用很有意思，但目前尚不清楚其中哪一部分效应是多层网络所特有的。}
+    \zhtranslation{原则上，相同的噪声构造也可以应用于单层网络。}
+    \zhtranslation{因此，作者应比较 $K = 1$ 与 $K > 1$ 的情形，或者给出同时改变噪声强度和层间耦合的相图。}
+    \zhtranslation{这将说明多层结构是从定性上改变了噪声的作用，还是仅仅改变了失稳阈值。}
+
+    \zhtranslation{一个相关的对比是 Khan、Suen 和 Tang 最近关于随机 Brusselator 系统的研究。}
+    \zhtranslation{他们发现，作用于两种组分且强度相同的乘性噪声可以抑制图灵失稳，而不等强度的噪声（包括主要作用于某一种组分的噪声）则可以诱发失稳（[arXiv][1]）。}
+    \zhtranslation{在本文模型中，激活因子和抑制因子使用同一个随机过程，但抑制因子的噪声项还乘以扩散比 $\sigma$。}
+    \zhtranslation{因此，作用于两种组分的有效噪声幅值并不相等。}
+    \zhtranslation{由此，所观察到的斑图形成促进效应可能与这种不对称性有关，而不一定是多层结构所特有的效应。}
+    \zhtranslation{建议讨论这一可能性，并检验改变 $K$ 或层间耦合是否会改变这种噪声诱导效应。}
+
+    \zhtranslation{相关参考文献：}
+    \zhtranslation{Q. Khan、A. Suen 和 B. Q. Tang，“Turing instability suppressed and induced by multiplicative noise in Brusselator system,” Communications in Nonlinear Science and Numerical Simulation 151, 109092 (2025), DOI: 10.1016/j.cnsns.2025.109092（[EdUHK Research Repository][2]）。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely
+
+\newpage
+\begin{tcolorbox}[title = {Comment 3 Supra-Laplacian and dominant modes},fonttitle = \bfseries]
+    The mechanism behind the non-monotonic curves in Figure 2 could be explained more clearly through the supra-Laplacian. The supra-Laplacian is the matrix that combines all diffusion connections in the multiplex network. Its diagonal blocks contain the Laplacians describing diffusion inside each layer, while its off-diagonal blocks describe diffusion between corresponding nodes in different layers. Its eigenvectors represent possible spatial patterns distributed across both nodes and layers, and its eigenvalues determine the effective diffusion strength of these modes.
+
+    \medskip
+
+    A simple analysis would be to calculate the eigenvalues of the supra-Laplacian for several values of $\beta / \alpha$ For every eigenvalue $\lambda q$, the authors can calculate the largest growth rate of the corresponding linearized reaction-diffusion mode. They could then plot the growth rate against $\lambda q$ and identify the first mode that becomes positive at the forward transition. Showing the corresponding eigenvector on the different layers would reveal whether the dominant pattern is synchronized between layers, differs between layers, or is localized around particular nodes.
+
+    \medskip
+
+    This analysis applies directly to the forward threshold because it describes the loss of stability of the homogeneous state. The backward threshold is different. It describes the persistence of an already established nonlinear pattern and cannot generally be explained by the dominant linear mode alone. The authors should clarify this distinction rather than treating the forward and backward thresholds as equivalent measures of instability.
+    \zhtranslationfirst{图 2 中非单调曲线背后的机制可以通过超拉普拉斯矩阵得到更清楚的解释。}
+    \zhtranslation{超拉普拉斯矩阵综合描述多重网络中的所有扩散连接：其对角块包含描述各层内部扩散的拉普拉斯矩阵，而非对角块则描述不同层中对应节点之间的扩散。}
+    \zhtranslation{其特征向量表示同时分布于节点与各层上的可能空间模式，其特征值则决定这些模式的有效扩散强度。}
+
+    \zhtranslation{一种简单的分析方法是，针对若干 $\beta / \alpha$ 取值计算超拉普拉斯矩阵的特征值。}
+    \zhtranslation{对于每个特征值 $\lambda_q$，作者可以计算相应线性化反应—扩散模态的最大增长率。}
+    \zhtranslation{随后，可绘制增长率随 $\lambda_q$ 变化的曲线，并识别在正向转变中首个变为正值的模态。}
+    \zhtranslation{展示该模态在不同层上的相应特征向量，可以揭示主导斑图是层间同步、层间存在差异，还是局域在特定节点附近。}
+
+    \zhtranslation{这一分析可直接用于正向阈值，因为它描述的是均匀状态稳定性的丧失。}
+    \zhtranslation{反向阈值则有所不同：它描述已经形成的非线性斑图能否持续存在，通常不能仅由主导线性模态加以解释。}
+    \zhtranslation{作者应澄清这一区别，而不应将正向阈值和反向阈值视为等价的失稳度量。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely
+
+\newpage
+\begin{tcolorbox}[title = {Comment 4 Normalization of the order parameter},fonttitle = \bfseries]
+    The order parameter A should be normalized by the total number of nodes NK. With its present definition, A increases approximately as the square root of NK even when the average pattern amplitude per node remains unchanged. Therefore, the increase in A with network size in Figure 4 and with the number of layers in Figure 5 cannot by itself demonstrate that the patterns become stronger. The authors should use an RMS measure obtained by dividing the squared sum by NK and reconsider these conclusions using the normalized value.
+
+    \medskip
+
+    There is an additional issue in Figure 5. Because the inter-layer graph is complete, increasing $K$ also increases the number of inter-layer connections of every node. The figure therefore changes both the number of layers and the total coupling experienced by each node. A useful control would be to scale $\beta$ by $1/(K - 1)$, or to use an inter-layer graph with $\alpha$ fixed degree, so that the effect of adding layers can be separated from the effect of increasing total coupling.
+    \zhtranslationfirst{序参量 $A$ 应以节点总数 $NK$ 进行归一化。按照目前的定义，即使每个节点的平均斑图幅值保持不变，$A$ 也会近似按照 $\sqrt{NK}$ 增长。}
+    \zhtranslation{因此，图 4 中 $A$ 随网络规模增大以及图 5 中 $A$ 随层数增加的现象，本身并不能证明斑图变得更强。}
+    \zhtranslation{作者应采用将平方和除以 $NK$ 所得到的均方根度量，并使用归一化后的数值重新审视这些结论。}
+
+    \zhtranslation{图 5 还存在另一个问题。由于层间图是完全图，增大 $K$ 也会增加每个节点的层间连接数量。}
+    \zhtranslation{因此，该图同时改变了层数和每个节点承受的总耦合强度。}
+    \zhtranslation{一个有效的对照方案是将 $\beta$ 按照 $1/(K - 1)$ 缩放，或者采用具有固定度的层间图，从而将增加层数的影响与增大总耦合强度的影响区分开来。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely
+
+\newpage
+\begin{tcolorbox}[title = {Comment 5 Turing instability, hysteresis and multistability},fonttitle = \bfseries]
+    Figure 2 shows that the layers change both the forward threshold and the distance between the forward and backward thresholds, but these represent different effects. A change in the forward threshold indicates that the multilayer structure changes the linear Turing instability region. A change in the width of the hysteresis region indicates that it also affects nonlinear pattern persistence and possibly the coexistence of homogeneous and patterned states.
+
+    \medskip
+
+    A simple way to separate these effects would be to compare the forward threshold predicted from the supra-Laplacian growth rates with the threshold observed in simulations. Inside the proposed hysteresis region, the authors could then start simulations from several homogeneous, weakly perturbed and patterned initial conditions and report the fraction that reaches each final state. This would show whether inter-layer coupling really changes multistability and the basins of attraction, rather than only shifting the linear instability threshold.
+
+    \medskip
+
+    One possible interpretation of the reported trade-off is that weak inter-layer coupling moves some supra-Laplacian modes into the range that supports Turing instability, facilitating pattern formation. Stronger coupling increasingly synchronizes the layers and can move these modes out of the unstable range, raising the forward threshold. Once the layers are nearly synchronized, further increases in coupling have little effect, which could explain the saturation. Connecting Figure 2 to the supra-Laplacian modes would allow the authors to test this interpretation directly.
+
+    \medskip
+
+    Finally, the disappearance of the forward-backward separation under noise does not by itself prove that a subcritical bifurcation becomes supercritical. Noise can induce switching between coexisting states and remove the observed hysteresis over a finite simulation time. The authors should either support this claim with probability distributions or switching statistics, or use the more cautious conclusion that noise progressively reduces and eventually eliminates the observed hysteresis.
+
+    \medskip
+
+    [1]: https://arxiv.org/abs/2503.16642 "Turing Instability Suppressed and Induced by Multiplicative Noise in Brusselator System"
+    \zhtranslationfirst{图 2 表明，多层结构同时改变了正向阈值以及正向阈值与反向阈值之间的距离，但二者代表不同的效应。}
+    \zhtranslation{正向阈值的变化意味着多层结构改变了线性图灵失稳区域；滞后区间宽度的变化则意味着它还会影响非线性斑图的持续存在，并可能影响均匀态与斑图态的共存。}
+
+    \zhtranslation{区分这两种效应的一种简单方法是，将超拉普拉斯增长率所预测的正向阈值与模拟中观察到的阈值进行比较。}
+    \zhtranslation{在所提出的滞后区间内，作者还可以分别从均匀初态、弱扰动初态和斑图初态出发进行多次模拟，并报告到达各个终态的比例。}
+    \zhtranslation{这将说明层间耦合是否真正改变了多稳态性及其吸引域，而不仅仅是移动了线性失稳阈值。}
+
+    \zhtranslation{对所报告权衡关系的一种可能解释是：较弱的层间耦合使某些超拉普拉斯模态进入支持图灵失稳的范围，从而促进斑图形成；更强的耦合则使各层日益同步，并可能使这些模态移出不稳定区间，从而提高正向阈值。}
+    \zhtranslation{当各层接近完全同步后，继续增强耦合的影响很小，这可能解释饱和现象。}
+    \zhtranslation{将图 2 与超拉普拉斯模态联系起来，可以使作者直接检验这一解释。}
+
+    \zhtranslation{最后，噪声作用下正向与反向转变之间间隔的消失，本身并不能证明亚临界分岔变成了超临界分岔。}
+    \zhtranslation{噪声可能会诱导共存状态之间的切换，并在有限模拟时间内消除所观察到的滞后。}
+    \zhtranslation{作者应通过概率分布或切换统计数据支持这一论断；否则，应采用更审慎的结论，即噪声逐渐减弱并最终消除了所观察到的滞后现象。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely
+
+\newpage
+\section*{Response to Reviewer 3}
+\parindent 2em
+
+We sincerely thank the reviewer for the meticulous review of our manuscript and the valuable feedback provided.
+We have taken each comment into consideration and implemented corresponding revisions in the latest manuscript.
+In particular, your numerous constructive suggestions regarding the applicability of FedPLN in IoT scenarios have significantly enhanced the alignment of our work with the scope and standards of the IEEE Internet of Things Journal.
+We believe that with these revisions, the quality and completeness of our manuscript have been substantially improved.
+
+Should you have any further questions or suggestions regarding our responses or modifications, we would be happy to continue the discussion and make additional improvements.
+Once again, we deeply appreciate your support and assistance in enhancing our work.
+
+\begin{tcolorbox}[title = {General Comment},fonttitle = \bfseries]
+    The manuscript addresses the interplay between multiplex network topology and multiplicative noise in activator–inhibitor systems, which is a meaningful direction beyond existing single-layer and additive-noise studies, but in its current form it requires substantial revision before the claimed contributions can be supported.
+    \zhtranslationfirst{本文研究了激活因子—抑制因子系统中多重网络拓扑与乘性噪声之间的相互作用，相较于现有的单层网络和加性噪声研究，这是一个有意义的拓展方向；但以稿件目前的形式，还需要进行大幅修改，才能充分支撑其所声称的贡献。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely thank
+% 感谢审稿人的认可
+
+\leftskip 2em
+\rightskip 2em
+\medskip
+
+``To ''
+
+\leftskip 0em
+\rightskip 0em
+\medskip
+
+\newpage
+\begin{tcolorbox}[title = {Comment 1},fonttitle = \bfseries]
+    The formulation of multiplicative noise is conceptually interesting in that it is tied to local density differences, which could potentially capture more realistic fluctuation mechanisms; however, the modeling step that replaces all independent intra-layer and inter-layer noises by a single common noise process fundamentally alters the stochastic structure and effectively introduces global correlation across the entire network, and this simplification is not theoretically justified or discussed in terms of its impact on the derived stability condition or the observed pattern formation.
+    \zhtranslationfirst{将乘性噪声与局部密局度差联系起来的建模方式在概念上很有意思，可能能够刻画更为真实的涨落机制；然而，以单一公共噪声过程替代所有相互独立的层内和层间噪声，从根本上改变了随机结构，并实际上在整个网络中引入了全相关性。}
+    \zhtranslation{对于这一简化，论文既未给出理论依据，也未讨论其对所推导稳定性条件或所观察斑图形成的影响。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely thank the reviewer for this highly constructive feedback, and completely agree with the reviewer's insightful suggestion to conduct more extensive experiments on IoT datasets.
+
+\leftskip 2em
+\rightskip 2em
+\medskip
+
+``To ''
+
+\leftskip 0em
+\rightskip 0em
+\medskip
+
+\newpage
+\begin{tcolorbox}[title = {Comment 2},fonttitle = \bfseries]
+    The analytical part attempts to establish a sufficient condition for stochastic stability using a Lyapunov-based argument, which is a reasonable approach, but the connection between this synchronization-type result and the onset of Turing instability is not clearly established, since the analysis guarantees convergence to a uniform state while the numerical section focuses on pattern emergence, leaving a conceptual gap between the theoretical condition and the bifurcation phenomena being investigated.
+    \zhtranslationfirst{分析部分尝试采用基于 Lyapunov 方法的论证来建立随机稳定性的充分条件，这是一种合理的方法；但这种同步型结果与图灵失稳起始之间的联系尚未得到清楚建立。}
+    \zhtranslation{原因在于，该分析保证系统收敛到均匀状态，而数值部分关注的却是斑图的涌现，因此理论条件与所研究的分岔现象之间仍存在概念上的缺口。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely
+
+\newpage
+\begin{tcolorbox}[title = {Comment 3},fonttitle = \bfseries]
+    The claim that multiplicative noise promotes pattern formation and eliminates hysteresis is potentially novel, yet the numerical evidence relies on a limited set of simulations without a clear statistical protocol, and the results shown in Figure 1 appear to be based on single realizations, making it difficult to assess whether the observed transitions are robust features of the stochastic system or artifacts of specific noise trajectories.
+    \zhtranslationfirst{关于乘性噪声能够促进斑图形成并消除滞后的论断可能具有创新性，但数值证据仅依赖数量有限的模拟，且缺乏明确的统计方案。}
+    \zhtranslation{图 1 所示结果似乎基于单次实现，这使人难以判断所观察到的转变究竟是随机系统的稳健特征，还是特定噪声轨迹造成的偶然现象。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely
+
+\newpage
+\begin{tcolorbox}[title = {Comment 4},fonttitle = \bfseries]
+    The study of multiplex structure highlights a non-monotonic role of inter-layer coupling, which could be an interesting contribution, but the experimental setup uses highly simplified configurations such as complete inter-layer connectivity and homogeneous layer structures, and it remains unclear whether the reported saturation and dual effects persist under more general and heterogeneous multiplex architectures.
+    \zhtranslationfirst{对多重网络结构的研究突出了层间耦合的非单调作用，这可能是一项有意义的贡献；但实验设置采用了高度简化的构型，例如完全层间连接和同质的层结构，因此尚不清楚所报告的饱和效应和双重作用能否在更一般、更具异质性的多重网络结构中继续存在。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely
+
+\newpage
+\begin{tcolorbox}[title = {Comment 5},fonttitle = \bfseries]
+    The conclusion regarding scale-invariant robustness in BA networks suggests that structural heterogeneity dominates the onset of instability, which is an appealing insight, but the evidence is based on a narrow range of network sizes and attachment parameters, and the absence of a deeper spectral or structural explanation makes it difficult to distinguish whether this behavior reflects a genuine universality or is specific to the chosen parameter settings.
+    \zhtranslationfirst{关于 BA 网络具有尺度不变稳健性的结论表明，结构异质性主导了失稳的起始，这是一个很有吸引力的见解；但相关证据仅基于较窄范围的网络规模和连接参数，而且缺乏更深入的谱分析或结构性解释，因此难以判断这一行为反映的是真正的普适性，还是仅适用于所选取的参数设置。}
+\end{tcolorbox}
+
+\noindent \underline {\textbf{Response:}}
+\bigskip
+
+We sincerely
+
+
+\end{document}

@@ -19,12 +19,12 @@ DYNA.steps = 2;         % 输出记录点数 (对 A 统计影响较小)
 DYNA.init_perturb = 0.1;
 
 % --- 待对比的噪声强度列表 (eta) ---
-ETA_LIST = [0, 1, 2];
+ETA_LIST = [0, 0.9, 1];
 
 % --- 扫描范围设置 (Sigma Range) ---
-DYNA.sigma_min  = 0;
+DYNA.sigma_min  = 10;
 DYNA.sigma_max  = 24;
-DYNA.sigma_npts = 121;   % 对应 0.1 的步长
+DYNA.sigma_npts = 71;   % 对应 0.1 的步长
 
 % 基于全连通配置层间拉普拉斯矩阵
 adj_inter = ones(DYNA.K) - eye(DYNA.K);
@@ -87,7 +87,8 @@ end
 % 属性精修
 xlabel('$\sigma$', 'FontSize', 18, 'Interpreter', 'latex');
 ylabel('$A(\sigma)$', 'FontSize', 18, 'Interpreter', 'latex');
-xlim([10, 24]); ylim([0, 148]);
+xlim([10, 24]);
+% ylim([0, 1]);
 legend('Location', 'NorthWest', 'FontSize', 16, 'NumColumns', 2, 'Interpreter', 'latex');
 grid on;
 set(ax, 'FontSize', 18, 'Box', 'on', 'TickLabelInterpreter', 'latex');
@@ -104,3 +105,10 @@ annotation(h, 'textbox', [0.026, 0.86, 0.08, 0.08], ...
 % out_img = fullfile(plots_dir, 'fig1a.eps');
 % exportgraphics(h, out_img);
 % fprintf('[DONE] 绘图已更新: %s\n', out_img);
+
+% 测试环境 PNG 导出
+plots_dir = fullfile(fileparts(mfilename('fullpath')), 'fig');
+if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
+out_img = fullfile(plots_dir, 'fig1a.png');
+exportgraphics(h, out_img, 'Resolution', 300);
+fprintf('[DONE] 绘图已保存: %s\n', out_img);

@@ -3,21 +3,21 @@ clear; clc; close all;
 addpath('simulations', 'networks');
 
 RUN_SIMULATION = true;  % 控制是否运行仿真 (true: 运行并保存, false: 直接读取并绘图)
-USE_SEED       = false;  % 控制初值模式 (true: 从斑图种子开始/反向模拟, false: 从随机噪声开始/正向模拟)
+USE_SEED       = true;  % 控制初值模式 (true: 从斑图种子开始/反向模拟, false: 从随机噪声开始/正向模拟)
 
 %% 1. 实验参数配置 (核心动力学参数)
 TOPO_TYPE  = 'ER';
 TOPO_PARAM = 0.03;
 
 DYNA.N = 200;
-DYNA.K = 10;
+DYNA.K = 5;
 DYNA.alpha = 0.05;
 DYNA.beta  = 0.1 * DYNA.alpha;
-DYNA.noise = 0.0;
+DYNA.noise = 0.80;
 DYNA.T_END = 500;
 DYNA.steps = 50;
 DYNA.init_perturb = 0.1;
-DYNA.sigma = 100.0;
+DYNA.sigma = 16.0;
 
 %% 2. 文件路径定义 & 仿真执行区
 % 自动映射分支扫描方向
@@ -87,7 +87,7 @@ U_all = Y(:, 1:NK);
 V_all = Y(:, NK+1:end);
 
 % 计算包含 u 和 v 的综合序参数演化 (L2-norm)
-A_t = sqrt(sum((U_all - 5).^2 + (V_all - 10).^2, 2));
+A_t = sqrt(sum((U_all - 5).^2 + (V_all - 10).^2, 2) / (N * K));
 
 % 颜色定义
 c_u = [0.0 0.447 0.741]; % 深蓝

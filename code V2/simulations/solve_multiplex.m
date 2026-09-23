@@ -102,7 +102,7 @@ for n = 1:total_steps
 
     % --- 5.6 增强型提前退出逻辑 (发散保护 + 收敛探测 + 早停加速) ---
     if mod(n, 200) == 0
-        A_curr = sqrt(sum((u - 5).^2 + (v - 10).^2));
+        A_curr = sqrt(sum((u - 5).^2 + (v - 10).^2) / NK);
 
         % A. 发散检测 (Robustness: 拦截由于步长不稳导致的 NaN)
         if isnan(A_curr) || isinf(A_curr)
@@ -122,7 +122,7 @@ for n = 1:total_steps
         end
         prev_A = A_curr;
 
-        % C. 早停加速 (与 find_thresholds.m 判定准则 0.05 强对齐)
+        % C. 早停加速 (与 find_thresholds.m 的归一化序参数阈值对齐)
         if isfield(cfg, 'early_stop') && current_sample > 2
             stop_flag = false;
             if strcmpi(cfg.early_stop, 'forward') && A_curr > 0.05
@@ -141,7 +141,7 @@ for n = 1:total_steps
 
     % --- 5.7 时间窗口平均计算 (Time-Averaging) ---
     if n >= A_start_step
-        A_sum = A_sum + sqrt(sum((u - 5).^2 + (v - 10).^2)); % 基于图片公式总结
+        A_sum = A_sum + sqrt(sum((u - 5).^2 + (v - 10).^2) / NK);
         A_count = A_count + 1;
     end
 end
@@ -150,7 +150,7 @@ end
 if A_count > 0
     cfg.A_final = A_sum / A_count;
 else
-    cfg.A_final = sqrt(sum((u - 5).^2 + (v - 10).^2));
+    cfg.A_final = sqrt(sum((u - 5).^2 + (v - 10).^2) / NK);
 end
 t = linspace(0, cfg.T_END, cfg.steps);
 end

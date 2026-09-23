@@ -13,7 +13,7 @@ DYNA.beta  = 0.005;
 DYNA.sigma = 16.0;
 scan_mode = 'bwd'; % 控制初始种子方向
 
-noise_list = [0.00, 0.30];
+noise_list = [0.00, 0.90];
 U_data = cell(2, 1);
 t_data = cell(2, 1);
 
@@ -53,8 +53,8 @@ if isempty(idx_switch)
     [~, idx_switch] = max(max(u2) - min(u2)); % 如果没找到严格跳变的，就找波动最大的那个
 end
 
-plots_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'manuscript', 'V2', 'manuscirpt', 'figures');
-if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
+% plots_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'manuscript', 'V2', 'manuscirpt', 'figures');
+% if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
 
 %% 3. 画轨迹对比 (仅 L1 的 u)
 fprintf('[PLOT] 正在生成轨迹对比图...\n');
@@ -87,8 +87,15 @@ text(0.95, 0.8, '$\eta = 0.3$', 'Units', 'normalized', 'FontSize', 18, ...
     'Interpreter', 'latex', 'BackgroundColor', 'w', 'EdgeColor', 'w', 'Margin', 2, 'HorizontalAlignment', 'right');
 xlim([0, 500]); grid on; box on;
 
-out_traj = fullfile(plots_dir, 'fig1c.eps');
-exportgraphics(f1, out_traj);
+% out_traj = fullfile(plots_dir, 'fig1c.eps');
+% exportgraphics(f1, out_traj);
+
+% 测试环境 PNG 导出
+test_plots_dir = fullfile(fileparts(mfilename('fullpath')), 'fig');
+if ~exist(test_plots_dir, 'dir'), mkdir(test_plots_dir); end
+test_out_traj = fullfile(test_plots_dir, 'fig1c.png');
+exportgraphics(f1, test_out_traj, 'Resolution', 300);
+fprintf('[DONE] 测试图片已保存: %s\n', test_out_traj);
 
 %% 4. 画末态节点分布快照对比 (仅 L1 的 u)
 fprintf('[PLOT] 正在生成快照对比图...\n');
@@ -126,9 +133,13 @@ cb.Layout.Tile = 'east';
 cb.Label.FontSize = 18;
 cb.Label.Interpreter = 'latex';
 
-out_snap = fullfile(plots_dir, 'fig1d.eps');
-exportgraphics(f2, out_snap);
+% out_snap = fullfile(plots_dir, 'fig1d.eps');
+% exportgraphics(f2, out_snap);
+
+test_out_snap = fullfile(test_plots_dir, 'fig1d.png');
+exportgraphics(f2, test_out_snap, 'Resolution', 300);
+fprintf('[DONE] 测试图片已保存: %s\n', test_out_snap);
 
 fprintf('\n[SUCCESS] 噪声对比图集 (L1的u分量) 已完成！\n');
-fprintf('  => %s\n', out_traj);
-fprintf('  => %s\n', out_snap);
+% fprintf('  => %s\n', out_traj);
+% fprintf('  => %s\n', out_snap);

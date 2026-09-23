@@ -17,7 +17,7 @@ DYNA.init_perturb = 0.1;
 
 % 搜索范围设置
 DYNA.sigma_min = 0;
-DYNA.sigma_max = 30;
+DYNA.sigma_max = 25;
 
 P_LIST   = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1];
 ETA_LIST = linspace(0, 3, 301);
@@ -114,9 +114,17 @@ ylabel('Critical Diffusion Ratio \sigma', 'FontSize', 14);
 legend('Location', 'bestoutside', 'FontSize', 14);
 grid on; set(ax, 'Box', 'on', 'FontSize', 14);
 
-plots_dir = fullfile(fileparts(mfilename('fullpath')), 'plots');
-if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
-out_img = fullfile(plots_dir, sprintf('scan_eta_p_%s_N%d_K%d_a%.3f_b%.3f.png', ...
-    lower(TOPO_TYPE), DYNA.N, DYNA.K, DYNA.alpha, DYNA.beta));
-exportgraphics(h, out_img, 'Resolution', 300);
-fprintf('[DONE] 绘图已更新: %s\n', out_img);
+% plots_dir = fullfile(fileparts(mfilename('fullpath')), 'plots');
+% if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
+% out_img = fullfile(plots_dir, sprintf('scan_eta_p_%s_N%d_K%d_a%.3f_b%.3f.png', ...
+%     lower(TOPO_TYPE), DYNA.N, DYNA.K, DYNA.alpha, DYNA.beta));
+% exportgraphics(h, out_img, 'Resolution', 300);
+% fprintf('[DONE] 绘图已更新: %s\n', out_img);
+
+% 测试环境 PNG 导出
+test_plots_dir = fullfile(fileparts(mfilename('fullpath')), 'fig');
+if ~exist(test_plots_dir, 'dir'), mkdir(test_plots_dir); end
+test_out_img = fullfile(test_plots_dir, sprintf('sigma_eta_connectivity_er_N%d_K%d_a%.3f_b%.3f.png', ...
+    DYNA.N, DYNA.K, DYNA.alpha, DYNA.beta));
+exportgraphics(h, test_out_img, 'Resolution', 300);
+fprintf('[DONE] 测试图片已保存: %s\n', test_out_img);

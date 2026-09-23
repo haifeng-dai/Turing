@@ -133,8 +133,15 @@ annotation(h, 'textbox', [0.05, 0.86, 0.08, 0.08], ...
     'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
 
 % 4. 导出图像
-plots_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'manuscript', 'V2', 'manuscirpt', 'figures');
-if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
-out_img = fullfile(plots_dir, 'fig1b.eps');
-exportgraphics(h, out_img);
-fprintf('[DONE] 多区域精确标注的三相图已导出: %s\n', out_img);
+% plots_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'manuscript', 'V2', 'manuscirpt', 'figures');
+% if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
+% out_img = fullfile(plots_dir, 'fig1b.eps');
+% exportgraphics(h, out_img);
+% fprintf('[DONE] 多区域精确标注的三相图已导出: %s\n', out_img);
+
+% 测试环境 PNG 导出
+test_plots_dir = fullfile(fileparts(mfilename('fullpath')), 'fig');
+if ~exist(test_plots_dir, 'dir'), mkdir(test_plots_dir); end
+test_out_img = fullfile(test_plots_dir, 'fig1b.png');
+exportgraphics(h, test_out_img, 'Resolution', 300);
+fprintf('[DONE] 测试图片已保存: %s\n', test_out_img);

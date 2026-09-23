@@ -12,16 +12,16 @@ TOPO_PARAM = 0.03;
 
 DYNA.N = 200;
 DYNA.K = 5;             % 待测试层数
-DYNA.alpha = 0.01;      % 层内扩散强度
+DYNA.alpha = 0.05;      % 层内扩散强度
 DYNA.beta  = 0.1 * DYNA.alpha;  % 层间耦合强度
-DYNA.noise = 0.01;       % 噪声强度
+DYNA.noise = 2.0;       % 噪声强度
 DYNA.T_END = 500;       % 每个点的平衡时长
 DYNA.init_perturb = 0.1;
 
 % --- 扫描范围设置 ---
-DYNA.sigma_min  = 20;
-DYNA.sigma_max  = 50;
-DYNA.sigma_npts = 50;
+DYNA.sigma_min  = 0;
+DYNA.sigma_max  = 24;
+DYNA.sigma_npts = 36;
 
 % --- 层间结构 (默认全极通) ---
 adj_inter = ones(DYNA.K) - eye(DYNA.K);
@@ -44,8 +44,8 @@ load(data_path); % 加载 cfg, sigma_range, A_fwd, A_bwd
 % 结果可视化 (滞后环对比)
 h = figure('Color', 'w', 'Units', 'normalized', 'Position', [0.2, 0.2, 0.4, 0.45]);
 ax = axes('Position', [0.18, 0.18, 0.75, 0.75]); hold on;
-plot(sigma_range, A_fwd, '-o', 'Color', [0 0.447 0.741], 'LineWidth', 2, 'MarkerSize', 6, 'MarkerFaceColor', [0 0.447 0.741], 'DisplayName', 'Forward (从均匀态开始)');
-plot(sigma_range, A_bwd, '--^', 'Color', [0.85 0.325 0.098], 'LineWidth', 2, 'MarkerSize', 6, 'DisplayName', 'Backward (从斑图态开始)');
+plot(sigma_range, A_fwd, '-o', 'Color', [0 0.447 0.741], 'LineWidth', 2, 'MarkerSize', 6, 'MarkerFaceColor', [0 0.447 0.741], 'DisplayName', 'Forward');
+plot(sigma_range, A_bwd, '--^', 'Color', [0.85 0.325 0.098], 'LineWidth', 2, 'MarkerSize', 6, 'DisplayName', 'Backward');
 
 xlabel('Diffusion Ratio \sigma', 'FontSize', 14); ylabel('Order Parameter A(\sigma)', 'FontSize', 14);
 % ylim([0, 100]);
@@ -54,9 +54,17 @@ legend('Location', 'NorthWest', 'FontSize', 14);
 grid on; box on; set(ax, 'FontSize', 14);
 
 % 保存结果图
-plots_dir = fullfile(fileparts(mfilename('fullpath')), 'plots');
-if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
-out_img = fullfile(plots_dir, sprintf('hysteresis_%s_N%d_K%d_p%.3f_a%.3f_b%.3f_n%.2f.png', ...
+% plots_dir = fullfile(fileparts(mfilename('fullpath')), 'plots');
+% if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
+% out_img = fullfile(plots_dir, sprintf('hysteresis_%s_N%d_K%d_p%.3f_a%.3f_b%.3f_n%.2f.png', ...
+%     lower(TOPO_TYPE), DYNA.N, DYNA.K, TOPO_PARAM, DYNA.alpha, DYNA.beta, DYNA.noise));
+% exportgraphics(gcf, out_img, 'Resolution', 300);
+% fprintf('[DONE] 绘图已更新: %s\n', out_img);
+
+% 测试环境 PNG 导出
+test_plots_dir = fullfile(fileparts(mfilename('fullpath')), 'fig');
+if ~exist(test_plots_dir, 'dir'), mkdir(test_plots_dir); end
+test_out_img = fullfile(test_plots_dir, sprintf('A_sigma_single_%s_N%d_K%d_p%.3f_a%.3f_b%.3f_n%.2f.png', ...
     lower(TOPO_TYPE), DYNA.N, DYNA.K, TOPO_PARAM, DYNA.alpha, DYNA.beta, DYNA.noise));
-exportgraphics(gcf, out_img, 'Resolution', 300);
-fprintf('[DONE] 绘图已更新: %s\n', out_img);
+exportgraphics(h, test_out_img, 'Resolution', 300);
+fprintf('[DONE] 测试图片已保存: %s\n', test_out_img);

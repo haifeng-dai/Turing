@@ -12,29 +12,27 @@ DYNA.T_END = 500;
 DYNA.steps = 2;
 DYNA.init_perturb = 0.1;
 DYNA.sigma_min = 0;
-DYNA.sigma_max = 25;
+DYNA.sigma_max = 35;
+% 0.01 - 35 0.02 - 25
 
-P_LIST = 0.01:0.01:0.10;
-ETA_LIST = linspace(0, 3, 301);
+P_VAL = 0.01;           % 指定要测试和绘制的单个 p
+ETA_LIST = linspace(0, 2, 201);
 
 res_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
-data_path = fullfile(res_dir, sprintf('scan_eta_p_%s_N%d_K%d_a%.3f_b%.3f.mat', ...
-    lower(TOPO_TYPE), DYNA.N, DYNA.K, DYNA.alpha, DYNA.beta));
+data_path = fullfile(res_dir, sprintf('scan_eta_p%.3f_%s_N%d_K%d_a%.3f_b%.3f.mat', ...
+    P_VAL, lower(TOPO_TYPE), DYNA.N, DYNA.K, DYNA.alpha, DYNA.beta));
 
-if ~exist(data_path, 'file')
-    sigma_eta_connectivity_er(DYNA, TOPO_TYPE, P_LIST, ETA_LIST);
+FORCE_RERUN = false;   % 控制是否强制重跑: true = 强制重新计算覆盖旧数据, false = 存在则直接读取
+
+% 缺失或强制重算时执行仿真
+if FORCE_RERUN || ~exist(data_path, 'file')
+    sigma_eta_connectivity_er(DYNA, TOPO_TYPE, P_VAL, ETA_LIST);
 end
 
 data = load(data_path);
-% 寻找 p = 0.01 所在的索引
-idx_p = find(abs(data.P_LIST - 0.01) < 1e-6, 1);
-if isempty(idx_p)
-    error('数据中未找到 p=0.01！当前 P_LIST 为: [%s]', num2str(data.P_LIST));
-end
-
 eta_range = data.ETA_LIST;
-sf_vec = data.SF_Matrix(idx_p, :);
-sb_vec = data.SB_Matrix(idx_p, :);
+sf_vec = data.sf_vec;
+sb_vec = data.sb_vec;
 
 % ========== 标注文字坐标配置 (易改参数) ==========
 % Forward (蓝色) 标签坐标 - 文字、箭头起点、箭头终点完全独立

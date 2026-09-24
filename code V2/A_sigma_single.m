@@ -8,20 +8,20 @@ RUN_SIMULATION = true;  % 控制是否运行仿真 (true: 运行并保存, false
 % 基本参数设置 (针对单一拓扑)
 % ==========================================
 TOPO_TYPE  = 'ER';
-TOPO_PARAM = 0.03;
+TOPO_PARAM = 0.03;      % 设定连接概率 p = 0.10
 
 DYNA.N = 200;
 DYNA.K = 5;             % 待测试层数
 DYNA.alpha = 0.05;      % 层内扩散强度
 DYNA.beta  = 0.1 * DYNA.alpha;  % 层间耦合强度
-DYNA.noise = 2.0;       % 噪声强度
+DYNA.noise = 0.0;       % 设定噪声强度 eta = 0.0
 DYNA.T_END = 500;       % 每个点的平衡时长
 DYNA.init_perturb = 0.1;
 
-% --- 扫描范围设置 ---
+% --- 扫描范围设置 (涵盖 [12.6, 15.4] 滞回区间) ---
 DYNA.sigma_min  = 0;
-DYNA.sigma_max  = 24;
-DYNA.sigma_npts = 36;
+DYNA.sigma_max  = 35;
+DYNA.sigma_npts = 71;
 
 % --- 层间结构 (默认全极通) ---
 adj_inter = ones(DYNA.K) - eye(DYNA.K);

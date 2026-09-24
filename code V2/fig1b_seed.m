@@ -1,4 +1,4 @@
-%% fig1b_seed.m: 基于多个噪声随机种子的临界阈值均值与方差
+%% fig1b_seed.m: 基于多个噪声随机种子的临界阈值均值与方差 (多 p 合一绘图)
 clear; clc; close all;
 script_dir = fileparts(mfilename('fullpath'));
 addpath(fullfile(script_dir, 'simulations'), fullfile(script_dir, 'networks'));
@@ -9,135 +9,169 @@ DYNA.N = 200;
 DYNA.K = 5;
 DYNA.alpha = 0.05;
 DYNA.beta = 0.005;
-DYNA.noise = 0.01;
 DYNA.T_END = 500;
 DYNA.steps = 2;
 DYNA.init_perturb = 0.1;
 DYNA.sigma_min = 0;
-DYNA.sigma_max = 25;
+DYNA.sigma_max = 35;
 
-P_LIST = 0.01;
-ETA_LIST = linspace(0, 3, 301);
-SEED_LIST = 1:5; % 可按需增减重复实验种子
+% 扫描配置：外层遍历 P_LIST，内层遍历 SEED_LIST
+P_LIST = [0.02, 0.04, 0.06]; % 配置需要对比的多个 p
+ETA_LIST = linspace(0, 2, 201);
+SEED_LIST = 1:5;             % 重复实验种子列表
 if numel(SEED_LIST) < 2 || numel(unique(SEED_LIST)) ~= numel(SEED_LIST)
     error('SEED_LIST 至少需要包含两个互不重复的随机种子。');
 end
 
+FORCE_RERUN = true;         % 是否强制重算: true = 强制重新计算, false = 优先读取已有缓存
 res_dir = fullfile(script_dir, 'results');
-SF_REPEATS = zeros(numel(SEED_LIST), numel(ETA_LIST));
-SB_REPEATS = zeros(numel(SEED_LIST), numel(ETA_LIST));
+test_plots_dir = fullfile(script_dir, 'fig');
+if ~exist(test_plots_dir, 'dir'), mkdir(test_plots_dir); end
 
-% 调用方逐个检查种子结果缓存；仅缺失时运行该次扫描。
-for seed_idx = 1:numel(SEED_LIST)
-    cur_seed = SEED_LIST(seed_idx);
-    data_name = sprintf('scan_eta_p_%s_N%d_K%d_a%.3f_b%.3f_seed%.0f.mat', ...
-        lower(TOPO_TYPE), DYNA.N, DYNA.K, DYNA.alpha, DYNA.beta, cur_seed);
-    data_path = fullfile(res_dir, data_name);
+num_p = length(P_LIST);
+num_e = length(ETA_LIST);
 
-    if ~exist(data_path, 'file')
-        seed_file = fullfile(res_dir, sprintf( ...
-            'evolution_er_N%d_K%d_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', ...
-            DYNA.N, DYNA.K));
-        if ~exist(seed_file, 'file')
-            rng(0, 'twister');
-            dyna_seed = DYNA;
-            dyna_seed.sigma = 100;
-            dyna_seed.noise = 0;
-            pattern_evolution(dyna_seed, TOPO_TYPE, 0.03, false);
+% 预分配跨 p 的统计结果存储
+ALL_DELTA_MEAN = zeros(num_p, num_e);
+ALL_DELTA_STD  = zeros(num_p, num_e);
+ALL_P_ZERO     = zeros(num_p, num_e);
+DELTA_ZERO_TOL = 0.05;
+
+%% ============================================================
+%% 1. 数据计算与加载区 (外层遍历每个 p，独立持久化)
+%% ============================================================
+for p_idx = 1:num_p
+    P_VAL = P_LIST(p_idx);
+    fprintf('\n============================================================\n');
+    fprintf('[DATA] 正在处理 p = %.3f (%d/%d)...\n', P_VAL, p_idx, num_p);
+    fprintf('============================================================\n');
+
+    SF_REPEATS = zeros(numel(SEED_LIST), num_e);
+    SB_REPEATS = zeros(numel(SEED_LIST), num_e);
+
+    for seed_idx = 1:numel(SEED_LIST)
+        cur_seed = SEED_LIST(seed_idx);
+        data_name = sprintf('scan_eta_p%.3f_%s_N%d_K%d_a%.3f_b%.3f_seed%.0f.mat', ...
+            P_VAL, lower(TOPO_TYPE), DYNA.N, DYNA.K, DYNA.alpha, DYNA.beta, cur_seed);
+        data_path = fullfile(res_dir, data_name);
+
+        if FORCE_RERUN || ~exist(data_path, 'file')
+            seed_file = fullfile(res_dir, sprintf( ...
+                'evolution_er_N%d_K%d_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', ...
+                DYNA.N, DYNA.K));
+            if ~exist(seed_file, 'file')
+                rng(0, 'twister');
+                dyna_seed = DYNA;
+                dyna_seed.sigma = 100;
+                dyna_seed.noise = 0;
+                pattern_evolution(dyna_seed, TOPO_TYPE, 0.03, false);
+            end
+
+            dyna_run = DYNA;
+            dyna_run.noise_seed = cur_seed;
+            sigma_eta_connectivity_er(dyna_run, TOPO_TYPE, P_VAL, ETA_LIST);
         end
 
-        dyna_run = DYNA;
-        dyna_run.noise_seed = cur_seed;
-        sigma_eta_connectivity_er(dyna_run, TOPO_TYPE, P_LIST, ETA_LIST);
+        data = load(data_path);
+        if abs(data.p_val - P_VAL) > 1e-6
+            error('种子 %.0f 的数据 p_val=%.3f 与当前配置 P_VAL=%.3f 不一致。', cur_seed, data.p_val, P_VAL);
+        end
+        if ~isequal(data.ETA_LIST, ETA_LIST)
+            error('种子 %.0f 的数据 ETA_LIST 与当前配置不一致。', cur_seed);
+        end
+        SF_REPEATS(seed_idx, :) = data.sf_vec;
+        SB_REPEATS(seed_idx, :) = data.sb_vec;
     end
 
-    data = load(data_path);
-    idx_p = find(abs(data.P_LIST - 0.01) < 1e-6, 1);
-    if isempty(idx_p)
-        error('种子 %.0f 的数据中未找到 p=0.01。', cur_seed);
-    end
-    if ~isequal(data.P_LIST, P_LIST)
-        error('种子 %.0f 的数据 P_LIST 与当前配置不一致。', cur_seed);
-    end
-    if ~isequal(data.ETA_LIST, ETA_LIST)
-        error('种子 %.0f 的数据 ETA_LIST 与当前配置不一致。', cur_seed);
-    end
-    SF_REPEATS(seed_idx, :) = data.SF_Matrix(idx_p, :);
-    SB_REPEATS(seed_idx, :) = data.SB_Matrix(idx_p, :);
+    % 统计当前 p 的滞回宽度均值、方差
+    DELTA_REPEATS = SF_REPEATS - SB_REPEATS;
+    DELTA_MEAN = mean(DELTA_REPEATS, 1);
+    DELTA_STD  = sqrt(var(DELTA_REPEATS, 0, 1));
+    P_ZERO     = mean(abs(DELTA_REPEATS) <= DELTA_ZERO_TOL, 1);
+
+    % 暂存到全局矩阵供统一绘图
+    ALL_DELTA_MEAN(p_idx, :) = DELTA_MEAN;
+    ALL_DELTA_STD(p_idx, :)  = DELTA_STD;
+    ALL_P_ZERO(p_idx, :)     = P_ZERO;
+
+    % 保存单个 p 的统计结果
+    stats_path = fullfile(res_dir, sprintf( ...
+        'scan_eta_p%.3f_%s_N%d_K%d_a%.3f_b%.3f_seed_stats.mat', ...
+        P_VAL, lower(TOPO_TYPE), DYNA.N, DYNA.K, DYNA.alpha, DYNA.beta));
+    save(stats_path, 'SEED_LIST', 'P_VAL', 'ETA_LIST', ...
+        'SF_REPEATS', 'SB_REPEATS', 'DELTA_REPEATS', 'DELTA_MEAN', ...
+        'DELTA_STD', 'DELTA_ZERO_TOL', 'P_ZERO');
 end
 
-DELTA_REPEATS = SF_REPEATS - SB_REPEATS;
-DELTA_MEAN = mean(DELTA_REPEATS, 1);
-DELTA_VAR = var(DELTA_REPEATS, 0, 1);
-DELTA_STD = sqrt(DELTA_VAR);
-
-% find_thresholds.m 的二分搜索精度 epsilon=0.05；
-% |Delta sigma| 在此范围内视作数值上无法区分于零。
-DELTA_ZERO_TOL_LIST = [0.025, 0.05, 0.10];
-P_ZERO_BY_TOL = zeros(numel(DELTA_ZERO_TOL_LIST), numel(ETA_LIST));
-for tol_idx = 1:numel(DELTA_ZERO_TOL_LIST)
-    P_ZERO_BY_TOL(tol_idx, :) = mean( ...
-        abs(DELTA_REPEATS) <= DELTA_ZERO_TOL_LIST(tol_idx), 1);
-end
-zero_tol_idx = find(abs(DELTA_ZERO_TOL_LIST - 0.05) < eps, 1);
-DELTA_ZERO_TOL = DELTA_ZERO_TOL_LIST(zero_tol_idx);
-P_ZERO = P_ZERO_BY_TOL(zero_tol_idx, :);
-
-stats_path = fullfile(res_dir, sprintf( ...
-    'scan_eta_p_%s_N%d_K%d_a%.3f_b%.3f_seed_stats.mat', ...
-    lower(TOPO_TYPE), DYNA.N, DYNA.K, DYNA.alpha, DYNA.beta));
-save(stats_path, 'SEED_LIST', 'P_LIST', 'ETA_LIST', ...
-    'SF_REPEATS', 'SB_REPEATS', 'DELTA_REPEATS', 'DELTA_MEAN', ...
-    'DELTA_VAR', 'DELTA_STD', 'DELTA_ZERO_TOL_LIST', 'P_ZERO_BY_TOL', ...
-    'DELTA_ZERO_TOL', 'P_ZERO');
-
-% 双 y 轴：左侧为平均滞回宽度及 ±1 标准差，右侧为近零概率。
-h = figure('Color', 'w', 'Units', 'normalized', 'Position', [0.2, 0.2, 0.48, 0.45]);
-ax = axes('Position', [0.16, 0.17, 0.75, 0.75]);
+%% ============================================================
+%% 2. 统一绘图区 (在同一图窗中对比展示所有 p)
+%% ============================================================
+fprintf('\n[PLOT] 正在生成多 p 合一对比图...\n');
+h = figure('Color', 'w', 'Units', 'normalized', 'Position', [0.2, 0.2, 0.52, 0.48]);
+ax = axes('Position', [0.15, 0.17, 0.72, 0.75]);
 hold(ax, 'on');
 
+% 颜色与标记配置
+colors = lines(num_p);
+markers = {'o', 's', '^', 'v', 'd', 'p', 'h'};
+h_mean_list = gobjects(num_p, 1);
+h_zero_list = gobjects(num_p, 1);
+
+% --- 左 Y 轴：平均滞回宽度及其误差带 ---
 yyaxis(ax, 'left');
-delta_lower = DELTA_MEAN - DELTA_STD;
-delta_upper = DELTA_MEAN + DELTA_STD;
-fill(ax, [ETA_LIST, fliplr(ETA_LIST)], ...
-    [delta_upper, fliplr(delta_lower)], [0 0.447 0.741], ...
-    'EdgeColor', 'none', 'FaceAlpha', 0.18, 'HandleVisibility', 'off');
-h_mean = plot(ax, ETA_LIST, DELTA_MEAN, '-', ...
-    'Color', [0 0.447 0.741], 'LineWidth', 2);
-plot(ax, [ETA_LIST(1), ETA_LIST(end)], [0, 0], 'k:', ...
-    'LineWidth', 1.2, 'HandleVisibility', 'off');
+for p_idx = 1:num_p
+    c = colors(p_idx, :);
+    d_mean = ALL_DELTA_MEAN(p_idx, :);
+    d_std  = ALL_DELTA_STD(p_idx, :);
+
+    % 绘制半透明误差带 (阴影)
+    fill(ax, [ETA_LIST, fliplr(ETA_LIST)], ...
+        [d_mean + d_std, fliplr(d_mean - d_std)], c, ...
+        'EdgeColor', 'none', 'FaceAlpha', 0.15, 'HandleVisibility', 'off');
+
+    % 绘制均值主实线
+    h_mean_list(p_idx) = plot(ax, ETA_LIST, d_mean, '-', ...
+        'Color', c, 'LineWidth', 2.2, ...
+        'DisplayName', sprintf('$\\langle\\Delta\\sigma\\rangle$ ($p=%.2f$)', P_LIST(p_idx)));
+end
+plot(ax, [ETA_LIST(1), ETA_LIST(end)], [0, 0], 'k:', 'LineWidth', 1.2, 'HandleVisibility', 'off');
 ylabel(ax, '$\langle\Delta\sigma\rangle$', 'FontSize', 16, 'Interpreter', 'latex');
 
-delta_min = min(delta_lower);
-delta_max = max(delta_upper);
-delta_pad = max(0.08 * (delta_max - delta_min), DELTA_ZERO_TOL);
-ylim(ax, [delta_min - delta_pad, delta_max + delta_pad]);
-
+% --- 右 Y 轴：近零概率 ---
 yyaxis(ax, 'right');
-h_zero = plot(ax, ETA_LIST, P_ZERO, '-o', ...
-    'Color', [0.85 0.325 0.098], 'LineWidth', 1.8, ...
-    'MarkerSize', 4, 'MarkerIndices', 1:15:numel(ETA_LIST));
+for p_idx = 1:num_p
+    c = colors(p_idx, :);
+    m = markers{mod(p_idx - 1, length(markers)) + 1};
+    p_zero = ALL_P_ZERO(p_idx, :);
+
+    % 绘制带标记的虚线
+    h_zero_list(p_idx) = plot(ax, ETA_LIST, p_zero, '--', ...
+        'Color', c, 'LineWidth', 1.8, 'Marker', m, 'MarkerSize', 5, ...
+        'MarkerIndices', (1 + (p_idx-1)*3):15:num_e, ...
+        'DisplayName', sprintf('$P(|\\Delta\\sigma|\\leq %.2f)$ ($p=%.2f$)', DELTA_ZERO_TOL, P_LIST(p_idx)));
+end
 ylabel(ax, sprintf('$P(|\\Delta\\sigma|\\leq %.2f)$', DELTA_ZERO_TOL), ...
     'FontSize', 16, 'Interpreter', 'latex');
-ylim(ax, [0, 1]);
+ylim(ax, [0, 1.05]);
 yticks(ax, 0:0.2:1);
 
+% 坐标轴公共修饰
 xlabel(ax, '$\eta$', 'FontSize', 16, 'Interpreter', 'latex');
-xlim(ax, [0, 3]);
+xlim(ax, [0, ETA_LIST(end)]);
 grid(ax, 'on');
 box(ax, 'on');
 set(ax, 'FontSize', 14, 'TickLabelInterpreter', 'latex');
-legend(ax, [h_mean, h_zero], ...
-    {'Mean $\Delta\sigma$', sprintf('$P(|\\Delta\\sigma|\\leq %.2f)$', DELTA_ZERO_TOL)}, ...
-    'Location', 'best', 'Interpreter', 'latex');
 
-annotation(h, 'textbox', [0.04, 0.89, 0.06, 0.07], 'String', '(b)', ...
+% 图例设置 (包含均值曲线与概率曲线)
+legend(ax, [h_mean_list; h_zero_list], 'Location', 'best', ...
+    'Interpreter', 'latex', 'NumColumns', 2, 'FontSize', 11);
+
+% 面板标签
+annotation(h, 'textbox', [0.03, 0.90, 0.06, 0.07], 'String', '(b)', ...
     'FontSize', 16, 'BackgroundColor', 'none', 'EdgeColor', 'none', ...
     'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
 
-test_plots_dir = fullfile(script_dir, 'fig');
-if ~exist(test_plots_dir, 'dir'), mkdir(test_plots_dir); end
-test_out_img = fullfile(test_plots_dir, 'fig1b_seed.png');
+% 保存合一图片
+test_out_img = fullfile(test_plots_dir, 'fig1b_seed_combined.png');
 exportgraphics(h, test_out_img, 'Resolution', 300);
-fprintf('[DONE] 滞回宽度均值与近零概率图已保存: %s\n统计数据: %s\n', ...
-    test_out_img, stats_path);
+fprintf('[DONE] 多 p 合一对比图已保存: %s\n', test_out_img);

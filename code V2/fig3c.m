@@ -106,7 +106,8 @@ end
 
 % title('Hysteresis Loop across BA Network Preferential Attachment (m)', 'FontSize', 12);
 xlabel('$\sigma$', 'FontSize', 18, 'Interpreter', 'latex'); ylabel('$A(\sigma)$', 'FontSize', 18, 'Interpreter', 'latex');
-xlim([10, 18]); ylim([0, 80]);
+xlim([10, 18]);
+% ylim([0, 80]);
 legend('Location', 'NorthWest', 'FontSize', 18, 'Interpreter', 'latex', 'NumColumns', 2);
 grid on; set(ax, 'Box', 'on', 'FontSize', 18, 'TickLabelInterpreter', 'latex');
 

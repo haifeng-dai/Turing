@@ -81,9 +81,25 @@ res_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
 data_path = fullfile(res_dir, sprintf('scan_beta_alpha_%s_N%d_K%d_p%.3f.mat', ...
     lower(TOPO_TYPE), N, K, P_VAL_FIXED));
 
+FORCE_RERUN = false; % true: 强制重算并覆盖旧数据；false: 优先读取已有缓存
+
 %% 2. 加载数据
-if ~exist(data_path, 'file')
-    error('未找到数据文件: %s\n请先运行 sigma_beta_alpha.m 生成数据。', data_path);
+if FORCE_RERUN || ~exist(data_path, 'file')
+    fprintf('[INFO] 正在执行/重新运行扫描: %s ...\n', data_path);
+    DYNA.N = N;
+    DYNA.K = K;
+    DYNA.noise = 0.01;
+    DYNA.T_END = 500;
+    DYNA.steps = 2;
+    DYNA.init_perturb = 0.1;
+    DYNA.sigma_min = 0;
+    DYNA.sigma_max = 80;
+
+    ALPHA_LIST = 0:0.01:0.15;
+    RATIO_LIST = 0:0.1:10.0;
+    RUN_SIMULATION = true;
+
+    sigma_beta_alpha(DYNA, TOPO_TYPE, P_VAL_FIXED, ALPHA_LIST, RATIO_LIST, RUN_SIMULATION);
 end
 
 data = load(data_path);

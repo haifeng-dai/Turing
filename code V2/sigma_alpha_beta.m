@@ -1,26 +1,6 @@
+function sigma_alpha_beta(DYNA, TOPO_TYPE, P_VAL_FIXED, ALPHA_LIST, RATIO_LIST, RUN_SIMULATION)
 %% sigma_alpha_beta.m: 分析层内扩散(alpha)对滞回阈值(sigma)的影响，并对比不同层间耦合强度(beta)
-clear; clc; close all;
 addpath('simulations', 'networks');
-
-RUN_SIMULATION = false;  % 控制是否运行仿真 (true: 运行并保存, false: 直接读取并绘图)
-
-%% 1. 实验参数配置
-TOPO_TYPE = 'ER';
-DYNA.N = 200;
-DYNA.K = 5;
-P_VAL_FIXED = 0.03;      % 固定连接概率
-DYNA.noise = 0.01;       % 固定噪声强度
-DYNA.T_END = 500;        % 扫描点平衡时间
-DYNA.steps = 2;          % 采样步数
-DYNA.init_perturb = 0.1;
-
-% 搜索范围设置 (Diffusion Ratio sigma)
-DYNA.sigma_min = 0;
-DYNA.sigma_max = 80;
-
-% 扫描变量定义
-ALPHA_LIST = 0.01:0.01:0.15;  % X轴：层内扩散强度
-RATIO_LIST = [0.1, 1, 10]; % 这里的 ratio 是倍数参数 (beta = alpha * ratio)
 
 % 数据保存路径
 res_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
@@ -183,11 +163,13 @@ exportgraphics(h, out_img, 'Resolution', 300);
 fprintf('[DONE] 绘图已生成: %s\n', out_img);
 
 % ========================================================
-function nUpdateProgress(total, hWait, tStart)
-persistent count
-if isempty(count), count = 0; end
-count = count + 1;
-progress = count / total;
-waitbar(progress, hWait, sprintf('处理进度: %d/%d (%.0f%%) | 耗时: %.1f 秒', ...
-    count, total, progress*100, toc(tStart)));
+    function nUpdateProgress(total, hWait, tStart)
+        persistent count
+        if isempty(count), count = 0; end
+        count = count + 1;
+        progress = count / total;
+        waitbar(progress, hWait, sprintf('处理进度: %d/%d (%.0f%%) | 耗时: %.1f 秒', ...
+            count, total, progress*100, toc(tStart)));
+    end
+
 end

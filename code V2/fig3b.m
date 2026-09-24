@@ -2,7 +2,6 @@
 clear; clc; close all;
 addpath('simulations', 'networks');
 
-RUN_SIMULATION = true;  % 控制是否运行仿真 (true: 运行并保存, false: 直接读取并绘图)
 
 % ==========================================
 % 0. 实验参数配置
@@ -32,38 +31,55 @@ DYNA.L_inter = diag(sum(adj_inter, 2)) - adj_inter;
 num_k = length(K_VALS);
 
 % ==========================================
-% 1. 【核心计算区】(由 RUN_SIMULATION 控制)
+% 1. 【核心计算区】(缺失时自动生成种子与扫描)
 % ==========================================
-if RUN_SIMULATION
-    fprintf('\n[SIM] 正在尝试启动 %d 并行仿真任务 (WS Network)... \n', num_k);
+results_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
+if ~exist(results_dir, 'dir'), mkdir(results_dir); end
+
+FORCE_RERUN = false; % true: 强制重算并覆盖旧数据；false: 优先读取已有缓存
+
+% 检查结果是否缺失或强制重算
+missing_result = false(1, num_k);
+for i = 1:num_k
+    mat_name = sprintf('hysteresis_%s_N%d_K%d_pr%.2f_mK%d_a%.3f_b%.3f_n%.2f_results.mat', ...
+        lower(TOPO_TYPE), DYNA.N, DYNA.K, P_REWIRE, K_VALS(i), DYNA.alpha, DYNA.beta, DYNA.noise);
+    missing_result(i) = FORCE_RERUN || ~exist(fullfile(results_dir, mat_name), 'file');
+end
+
+if any(missing_result)
+    % 检查并自愈标准种子
+    seed_name = sprintf('evolution_er_N%d_K%d_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', ...
+        DYNA.N, DYNA.K);
+    seed_file = fullfile(results_dir, seed_name);
+    if ~exist(seed_file, 'file')
+        fprintf('[INFO] 未检测到种子文件，正在生成参考斑图种子...\n');
+        dyna_seed = DYNA;
+        dyna_seed.sigma = 100;
+        dyna_seed.noise = 0;
+        pattern_evolution(dyna_seed, 'ER', 0.030, false);
+    end
+
+    fprintf('\n[SIM] 正在尝试启动 %d 组缺失的仿真任务 (WS Network)... \n', sum(missing_result));
     simStart = tic;
-    for i = 1:num_k
-        % WS 网络参数：K 为平均度，P_REWIRE 为固定的重连概率
-        % 创建临时配置以传递两个参数
+    for i = find(missing_result)
         dyna_temp = DYNA;
-        dyna_temp.ws_k = K_VALS(i);          % 平均度
-        dyna_temp.ws_p = P_REWIRE;           % 重连概率
+        dyna_temp.ws_k = K_VALS(i);
+        dyna_temp.ws_p = P_REWIRE;
         sweep_param_ws(TOPO_TYPE, K_VALS(i), P_REWIRE, dyna_temp);
     end
     fprintf('[SIM] 扫描仿真已完成。总运行时间: %.2f 秒。\n', toc(simStart));
 end
 
 % ==========================================
-% 2. 【数据加载区】(保证绘图区始终有数据源)
+% 2. 【数据加载区】
 % ==========================================
 Results = cell(num_k, 1);
 for i = 1:num_k
-    % WS网络文件名包含平均度K和重连概率p_rewire
     mat_name = sprintf('hysteresis_%s_N%d_K%d_pr%.2f_mK%d_a%.3f_b%.3f_n%.2f_results.mat', ...
         lower(TOPO_TYPE), DYNA.N, DYNA.K, P_REWIRE, K_VALS(i), DYNA.alpha, DYNA.beta, DYNA.noise);
-    data_path = fullfile('results', mat_name);
-
-    if exist(data_path, 'file')
-        Results{i} = load(data_path);
-        fprintf('[LOAD] 数据已由磁盘载入内存: %s\n', mat_name);
-    else
-        warning('由于历史数据不存在(%s)，绘图区可能无法正常工作。', mat_name);
-    end
+    data_path = fullfile(results_dir, mat_name);
+    Results{i} = load(data_path);
+    fprintf('[LOAD] 数据已由磁盘载入内存: %s\n', mat_name);
 end
 
 % ==========================================

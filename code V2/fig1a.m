@@ -29,15 +29,17 @@ adj_inter = ones(DYNA.K) - eye(DYNA.K);
 DYNA.L_inter = diag(sum(adj_inter, 2)) - adj_inter;
 results_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
 
+FORCE_RERUN = false; % true: 强制重算并覆盖旧数据；false: 优先读取已有缓存
+
 % ==========================================
 % 2. 【核心计算区】(批量运行滞后扫描)
 % ==========================================
-% 只在扫描结果缺失时生成标准种子并运行对应噪声的扫描
+% 只在扫描结果缺失或强制重算时生成标准种子并运行对应噪声的扫描
 missing_result = false(size(ETA_LIST));
 for i = 1:length(ETA_LIST)
     mat_name = sprintf('hysteresis_%s_N%d_K%d_p%.3f_a%.3f_b%.3f_n%.2f_results.mat', ...
         lower(TOPO_TYPE), DYNA.N, DYNA.K, TOPO_PARAM, DYNA.alpha, DYNA.beta, ETA_LIST(i));
-    missing_result(i) = ~exist(fullfile(results_dir, mat_name), 'file');
+    missing_result(i) = FORCE_RERUN || ~exist(fullfile(results_dir, mat_name), 'file');
 end
 
 if any(missing_result)

@@ -1,26 +1,6 @@
+function sigma_beta_alpha(DYNA, TOPO_TYPE, P_VAL_FIXED, ALPHA_LIST, RATIO_LIST, RUN_SIMULATION)
 %% sigma_beta_alpha.m: 层间耦合(beta)与层内扩散(alpha)对滞回阈值的影响分析
-clear; clc; close all;
 addpath('simulations', 'networks');
-
-RUN_SIMULATION = true;  % 控制是否运行仿真 (true: 运行并保存, false: 直接读取并绘图)
-
-%% 1. 实验参数配置
-TOPO_TYPE = 'ER';
-DYNA.N = 200;
-DYNA.K = 5;
-P_VAL_FIXED = 0.03;      % 固定连接概率
-DYNA.noise = 0.01;       % 固定噪声强度
-DYNA.T_END = 500;        % 扫描点平衡时间
-DYNA.steps = 2;          % 采样步数
-DYNA.init_perturb = 0.1;
-
-% 搜索范围设置 (Diffusion Ratio sigma)
-DYNA.sigma_min = 0;
-DYNA.sigma_max = 80;
-
-% 扫描变量定义
-ALPHA_LIST   = 0:0.01:0.15;
-RATIO_LIST   = 0:0.1:10.0;
 
 % 数据保存路径
 res_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
@@ -79,9 +59,6 @@ if RUN_SIMULATION
     n_rough = 8; % 仅8个点快速获得趋势，粗扫描占总计算~1/12（128 vs 1616）
     idx_rough = round(linspace(1, length(RATIO_LIST), n_rough));
     ratio_rough = RATIO_LIST(idx_rough);
-
-    sf_rough = zeros(num_a, n_rough);
-    sb_rough = zeros(num_a, n_rough);
 
     % 平坦化索引：(a_i, r_i) -> 线性索引，充分利用64个核
     [R_rough, A_rough] = meshgrid(1:n_rough, 1:num_a);  % 创建 (alpha, ratio) 网格
@@ -158,59 +135,18 @@ if RUN_SIMULATION
     fprintf('[SAVE] 结果已保存到: %s\n', data_path);
 end
 
-%% 3. 数据可视化
-fprintf('\n[VIS] 准备数据可视化...\n');
-if exist(data_path, 'file')
-    load(data_path);
-    fprintf('[LOAD] 已加载结果文件: %s\n', data_path);
-else
-    fprintf('[WARN] 结果文件不存在！请先运行仿真 (RUN_SIMULATION=true)。\n');
-    num_a = length(ALPHA_LIST);
-    num_r = length(RATIO_LIST);
-    return;
-end
-
-num_a = length(ALPHA_LIST);
-num_r = length(RATIO_LIST);
-
-h = figure('Color', 'w', 'Units', 'normalized', 'Position', [0.2, 0.2, 0.45, 0.5]);
-ax = axes('Position', [0.15, 0.15, 0.75, 0.75]); hold on;
-
-colors = flipud(jet(num_a));
-for i = 1:num_a
-    % 正向扫描 (实线)
-    plot(RATIO_LIST, SF_Matrix(i, :), '-', 'Color', colors(i,:), 'LineWidth', 2, ...
-        'DisplayName', sprintf('\\alpha=%.2f (\\sigma_f)', ALPHA_LIST(i)));
-    % 反向扫描 (虚线，隐藏 legend)
-    plot(RATIO_LIST, SB_Matrix(i, :), '--', 'Color', colors(i,:), 'LineWidth', 1.5, ...
-        'HandleVisibility', 'off');
-end
-
-% 图形属性设置
-set(ax, 'XScale', 'log'); % 使用对数坐标轴，因为倍数跨度较大
-xlabel('Coupling Ratio \eta = \beta/\alpha', 'FontSize', 14);
-ylabel('Critical Diffusion Ratio \sigma', 'FontSize', 14);
-title(sprintf('Impact of Alpha on Hysteresis (ER, p=%.3f)', P_VAL_FIXED), 'FontSize', 14);
-legend('Location', 'northeast', 'FontSize', 12);
-grid off; box on;
-set(ax, 'FontSize', 14);
-
-plots_dir = fullfile(fileparts(mfilename('fullpath')), 'plots');
-if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
-out_img = fullfile(plots_dir, sprintf('scan_beta_alpha_%s_p%.3f.png', lower(TOPO_TYPE), P_VAL_FIXED));
-exportgraphics(h, out_img, 'Resolution', 300);
-fprintf('[DONE] 绘图已生成: %s\n', out_img);
-
 % ========================================================
 % 进度监控子函数 (基于 DataQueue)
 % ========================================================
-function nUpdateProgress(total, hWait, tStart)
-persistent count
-if isempty(count), count = 0; end
-count = count + 1;
+    function nUpdateProgress(total, hWait, tStart)
+        persistent count
+        if isempty(count), count = 0; end
+        count = count + 1;
 
-% 更新 waitbar
-progress = count / total;
-waitbar(progress, hWait, sprintf('处理进度: %d/%d (%.0f%%) | 耗时: %.1f 秒', ...
-    count, total, progress*100, toc(tStart)));
+        % 更新 waitbar
+        progress = count / total;
+        waitbar(progress, hWait, sprintf('处理进度: %d/%d (%.0f%%) | 耗时: %.1f 秒', ...
+            count, total, progress*100, toc(tStart)));
+    end
+
 end

@@ -107,7 +107,11 @@ else
     % 图像导出
     plots_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'manuscript', 'V2', 'manuscirpt', 'figures');
     if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
-    fname = fullfile(plots_dir, 'fig4c.eps');
-    exportgraphics(h, fname);
-    fprintf('[DONE] 绘图已更新: %s\n', fname);
+    % fname = fullfile(plots_dir, 'fig4c.eps');
+    % exportgraphics(h, fname);
+    test_plots_dir = fullfile(fileparts(mfilename('fullpath')), 'fig');
+    if ~exist(test_plots_dir, 'dir'), mkdir(test_plots_dir); end
+    test_fname = fullfile(test_plots_dir, 'fig4c.png');
+    exportgraphics(h, test_fname, 'Resolution', 300);
+    fprintf('[DONE] 测试图片已保存: %s\n', test_fname);
 end

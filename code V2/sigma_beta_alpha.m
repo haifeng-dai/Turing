@@ -2,7 +2,7 @@
 clear; clc; close all;
 addpath('simulations', 'networks');
 
-RUN_SIMULATION = false;  % 控制是否运行仿真 (true: 运行并保存, false: 直接读取并绘图)
+RUN_SIMULATION = true;  % 控制是否运行仿真 (true: 运行并保存, false: 直接读取并绘图)
 
 %% 1. 实验参数配置
 TOPO_TYPE = 'ER';

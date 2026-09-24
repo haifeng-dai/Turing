@@ -1,4 +1,4 @@
-%% compare_noise_evolution_u.m: 专属定制脚本，对比不同噪声(eta=0 vs eta=0.3)下L1层的u演化与稳态分布
+%% compare_noise_evolution_u.m: 对比 noise_list 中不同噪声下 L1 层的 u 演化与稳态分布
 % 提取自 pattern_evolution.m 逻辑，仅绘制第一层 u 分量的轨迹和末态分布快照图
 clear; clc; close all;
 addpath('simulations', 'networks');
@@ -11,16 +11,21 @@ DYNA.K = 5;
 DYNA.alpha = 0.05;
 DYNA.beta  = 0.005;
 DYNA.sigma = 16.0;
+DYNA.T_END = 1000;
+DYNA.steps = 50;
+DYNA.init_perturb = 0.1;
 scan_mode = 'bwd'; % 控制初始种子方向
 
-noise_list = [0.00, 0.90];
+noise_list = [0.0, 0.8];
+noise_label_1 = sprintf('$\\eta = %.2f$', noise_list(1));
+noise_label_2 = sprintf('$\\eta = %.2f$', noise_list(2));
 U_data = cell(2, 1);
 t_data = cell(2, 1);
 
 results_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
 c_u = [0.0 0.447 0.741]; % 深蓝颜色
 
-%% 2. 加载两次仿真的数据 (0噪声 与 0.3噪声)
+%% 2. 加载 noise_list 中两组仿真数据
 fprintf('[INFO] 正在尝试加载数据...\n');
 for i = 1:2
     cur_noise = noise_list(i);
@@ -30,7 +35,19 @@ for i = 1:2
     fprintf("\n%s\n", mat_name)
 
     if ~exist(file_path, 'file')
-        error('未找到数据文件: %s\n请先在 pattern_evolution.m 中分别将 DYNA.noise 设为 0.00 和 0.30，运行(RUN_SIMULATION=true)以生成数据！', mat_name);
+        seed_name = sprintf('evolution_%s_N%d_K%d_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', ...
+            lower(TOPO_TYPE), DYNA.N, DYNA.K);
+        seed_file = fullfile(results_dir, seed_name);
+        if ~exist(seed_file, 'file')
+            dyna_seed = DYNA;
+            dyna_seed.sigma = 100;
+            dyna_seed.noise = 0;
+            pattern_evolution(dyna_seed, TOPO_TYPE, TOPO_PARAM, false);
+        end
+
+        dyna_run = DYNA;
+        dyna_run.noise = cur_noise;
+        pattern_evolution(dyna_run, TOPO_TYPE, TOPO_PARAM, true);
     end
 
     data = load(file_path, 't', 'Y');
@@ -50,7 +67,7 @@ t2 = t_data{2}; u2 = U_data{2}; u2_end = u2(end, :);
 u2_early = u2(round(length(t2)*0.2), :); % 取演化 20% 处的采样
 idx_switch = find(u2_early > 4 & u2_end < 2, 1);
 if isempty(idx_switch)
-    [~, idx_switch] = max(max(u2) - min(u2)); % 如果没找到严格跳变的，就找波动最大的那个
+    [~, idx_switch] = max(max(u2) - min(u2)); % 波动最大的节点作为兜底
 end
 
 % plots_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'manuscript', 'V2', 'manuscirpt', 'figures');
@@ -61,31 +78,31 @@ fprintf('[PLOT] 正在生成轨迹对比图...\n');
 f1 = figure('Color', 'w', 'Units', 'normalized', 'Position', [0.1, 0.2, 0.35, 0.45]);
 t1_lay = tiledlayout(2, 1, 'Padding', 'compact', 'TileSpacing', 'compact');
 
-% 上图: eta = 0.00
+% 上图: noise_list(1)
 nexttile(t1_lay); hold on; set(gca, 'FontSize', 18, 'TickLabelInterpreter', 'latex');
 plot(t1, u1(:, 1:5:end), 'Color', [0.85 0.85 0.85]);
 plot(t1, u1(:, idx_up1), 'Color', c_u, 'LineWidth', 1.5);
 plot(t1, u1(:, idx_down1), 'Color', c_u*0.6, 'LineWidth', 1.5);
 ylabel('u(t)', 'FontSize', 18, 'Interpreter', 'latex', 'FontName', 'Times New Roman');
 ylim_val = ylim;
-text(0.95, 0.8, '$\eta = 0.0$', 'Units', 'normalized', 'FontSize', 18, ...
+text(0.95, 0.8, noise_label_1, 'Units', 'normalized', 'FontSize', 18, ...
     'Interpreter', 'latex', 'BackgroundColor', 'w', 'EdgeColor', 'w', 'Margin', 2, 'HorizontalAlignment', 'right');
-xlim([0, 500]); grid on; box on;
+xlim([0, 1000]); grid on; box on;
 
-% 下图: eta = 0.30
+% 下图: noise_list(2)
 nexttile(t1_lay); hold on; set(gca, 'FontSize', 18, 'TickLabelInterpreter', 'latex');
 plot(t2, u2(:, 1:5:end), 'Color', [0.85 0.85 0.85]);
 plot(t2, u2(:, idx_up2), 'Color', c_u, 'LineWidth', 1.5);
 plot(t2, u2(:, idx_down2), 'Color', c_u*0.6, 'LineWidth', 1.5);
 % 绘制并突出跳变波形的轨线
 if ~isempty(idx_switch)
-    plot(t2, u2(:, idx_switch), 'Color', [0.9 0.4 0], 'LineWidth', 2.5); % 保持之前配色，但加粗突出
+    plot(t2, u2(:, idx_switch), 'Color', [0.9 0.4 0], 'LineWidth', 2.5); % 加粗突出
 end
 ylabel('$u(t)$', 'FontSize', 18, 'Interpreter', 'latex'); xlabel('$t$', 'FontSize', 18, 'Interpreter', 'latex');
 ylim(ylim_val);
-text(0.95, 0.8, '$\eta = 0.3$', 'Units', 'normalized', 'FontSize', 18, ...
+text(0.95, 0.8, noise_label_2, 'Units', 'normalized', 'FontSize', 18, ...
     'Interpreter', 'latex', 'BackgroundColor', 'w', 'EdgeColor', 'w', 'Margin', 2, 'HorizontalAlignment', 'right');
-xlim([0, 500]); grid on; box on;
+xlim([0, 1000]); grid on; box on;
 
 % out_traj = fullfile(plots_dir, 'fig1c.eps');
 % exportgraphics(f1, out_traj);
@@ -106,22 +123,22 @@ t2_lay = tiledlayout(2, 1, 'Padding', 'compact', 'TileSpacing', 'compact');
 c_min = min([min(u1_end), min(u2_end)]);
 c_max = max([max(u1_end), max(u2_end)]);
 
-% 上图: eta = 0.00
+% 上图: noise_list(1)
 ax1 = nexttile(t2_lay); hold on; set(gca, 'FontSize', 18, 'TickLabelInterpreter', 'latex');
 scatter(1:DYNA.N, u1_end, 20, u1_end, 'filled');
 colormap(gca, 'jet');
 ylabel('$u(x)$', 'FontSize', 18, 'Interpreter', 'latex');
-text(0.95, 0.3, '$\eta = 0.0$', 'Units', 'normalized', 'FontSize', 18, ...
+text(0.95, 0.3, noise_label_1, 'Units', 'normalized', 'FontSize', 18, ...
     'Interpreter', 'latex', 'BackgroundColor', 'w', 'EdgeColor', 'none', 'Margin', 2, 'HorizontalAlignment', 'right');
 ylim([min(u1_end), max(u1_end)]);
 grid on; box on; clim(ax1, [c_min c_max]);
 
-% 下图: eta = 0.30
+% 下图: noise_list(2)
 ax2 = nexttile(t2_lay); hold on; set(gca, 'FontSize', 18, 'TickLabelInterpreter', 'latex');
 scatter(1:DYNA.N, u2_end, 20, u2_end, 'filled');
 colormap(gca, 'jet');
 ylabel('$u(x)$', 'FontSize', 18, 'Interpreter', 'latex'); xlabel('Node ID', 'FontSize', 18, 'Interpreter', 'latex');
-text(0.95, 0.3, '$\eta = 0.3$', 'Units', 'normalized', 'FontSize', 18, ...
+text(0.95, 0.3, noise_label_2, 'Units', 'normalized', 'FontSize', 18, ...
     'Interpreter', 'latex', 'BackgroundColor', 'w', 'EdgeColor', 'none', 'Margin', 2, 'HorizontalAlignment', 'right');
 ylim([min(u2_end), max(u2_end)]);
 grid on; box on; clim(ax2, [c_min c_max]);

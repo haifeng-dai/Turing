@@ -93,6 +93,19 @@ res_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
 data_path = fullfile(res_dir, sprintf('scan_eta_p_%s_N%d_K%d_a%.3f_b%.3f.mat', ...
     lower(TOPO_TYPE), DYNA.N, DYNA.K, DYNA.alpha, DYNA.beta));
 
+if ~exist(data_path, 'file')
+    DYNA_ETA = DYNA;
+    DYNA_ETA.noise = 0.01;
+    DYNA_ETA.T_END = 500;
+    DYNA_ETA.steps = 2;
+    DYNA_ETA.init_perturb = 0.1;
+    DYNA_ETA.sigma_min = 0;
+    DYNA_ETA.sigma_max = 25;
+    P_LIST_ETA = 0.01:0.01:0.10;
+    ETA_LIST_ETA = linspace(0, 3, 301);
+    sigma_eta_connectivity_er(DYNA_ETA, TOPO_TYPE, P_LIST_ETA, ETA_LIST_ETA);
+end
+
 if exist(data_path, 'file')
     data = load(data_path);
     idx_p = find(abs(data.P_LIST - TOPO_PARAM) < 1e-6, 1);

@@ -100,6 +100,10 @@ set(ax3, 'FontSize', 14, 'TickLabelInterpreter', 'latex', 'FontName', 'Times New
 text(0.05, 0.5, '\textbf{(c)}', 'Units', 'normalized', 'FontSize', 14, 'Interpreter', 'latex', 'VerticalAlignment', 'middle', 'FontName', 'Times New Roman');
 
 % Export
-out_path = fullfile(plots_dir, 'fig3.eps');
-exportgraphics(h, out_path, 'ContentType', 'vector');
-fprintf('[DONE] Combined Figure 3 saved to: %s\n', out_path);
+% out_path = fullfile(plots_dir, 'fig3.eps');
+% exportgraphics(h, out_path, 'ContentType', 'vector');
+test_plots_dir = fullfile(fileparts(mfilename('fullpath')), 'fig');
+if ~exist(test_plots_dir, 'dir'), mkdir(test_plots_dir); end
+test_out_path = fullfile(test_plots_dir, 'fig3.png');
+exportgraphics(h, test_out_path, 'Resolution', 300);
+fprintf('[DONE] Test Figure 3 saved to: %s\n', test_out_path);

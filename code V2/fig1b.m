@@ -1,4 +1,4 @@
-%% plot_sigma_eta_p03.m: 专门展示 p=0.03 情况下的噪声(eta)对滞回阈值(sigma)的影响
+%% fig1b.m: 专门展示 p=0.01 情况下的噪声(eta)对滞回阈值(sigma)的影响
 clear; clc; close all;
 
 % 1. 参数设置与数据加载
@@ -7,20 +7,29 @@ DYNA.N = 200;
 DYNA.K = 5;
 DYNA.alpha = 0.05;
 DYNA.beta  = 0.1 * DYNA.alpha;
+DYNA.noise = 0.01;
+DYNA.T_END = 500;
+DYNA.steps = 2;
+DYNA.init_perturb = 0.1;
+DYNA.sigma_min = 0;
+DYNA.sigma_max = 25;
+
+P_LIST = 0.01:0.01:0.10;
+ETA_LIST = linspace(0, 3, 301);
 
 res_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
 data_path = fullfile(res_dir, sprintf('scan_eta_p_%s_N%d_K%d_a%.3f_b%.3f.mat', ...
     lower(TOPO_TYPE), DYNA.N, DYNA.K, DYNA.alpha, DYNA.beta));
 
 if ~exist(data_path, 'file')
-    error('未找到数据文件: %s\n请先运行 sigma_eta_connectivity_er.m 生成数据！', data_path);
+    sigma_eta_connectivity_er(DYNA, TOPO_TYPE, P_LIST, ETA_LIST);
 end
 
 data = load(data_path);
-% 寻找 p = 0.03 所在的索引
+% 寻找 p = 0.01 所在的索引
 idx_p = find(abs(data.P_LIST - 0.01) < 1e-6, 1);
 if isempty(idx_p)
-    error('数据中未找到 p=0.03！当前 P_LIST 为: [%s]', num2str(data.P_LIST));
+    error('数据中未找到 p=0.01！当前 P_LIST 为: [%s]', num2str(data.P_LIST));
 end
 
 eta_range = data.ETA_LIST;

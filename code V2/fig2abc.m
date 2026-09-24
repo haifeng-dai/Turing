@@ -105,6 +105,8 @@ end
 %% 3. 为每个 alpha 值循环绘图
 plots_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'manuscript', 'V2', 'manuscirpt', 'figures');
 if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
+test_plots_dir = fullfile(fileparts(mfilename('fullpath')), 'fig');
+if ~exist(test_plots_dir, 'dir'), mkdir(test_plots_dir); end
 
 for alpha_idx = 1:length(SELECTED_ALPHAS)
     target_alpha = SELECTED_ALPHAS(alpha_idx);
@@ -234,9 +236,11 @@ for alpha_idx = 1:length(SELECTED_ALPHAS)
 
     % 导出图片
     fig_suffix = char('a' + alpha_idx - 1);
-    out_img = fullfile(plots_dir, sprintf('fig2%s.eps', fig_suffix));
-    exportgraphics(h, out_img);
-    fprintf('[DONE] 第 %d 个相图已导出 (alpha=%.4f): %s\n', alpha_idx, actual_alpha, out_img);
+    % out_img = fullfile(plots_dir, sprintf('fig2%s.eps', fig_suffix));
+    % exportgraphics(h, out_img);
+    test_out_img = fullfile(test_plots_dir, sprintf('fig2%s.png', fig_suffix));
+    exportgraphics(h, test_out_img, 'Resolution', 300);
+    fprintf('[DONE] 第 %d 个测试相图已保存 (alpha=%.4f): %s\n', alpha_idx, actual_alpha, test_out_img);
 
 end
 fprintf('\n所有 %d 个相图绘制完成！\n', length(SELECTED_ALPHAS));

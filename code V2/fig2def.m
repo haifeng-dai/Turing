@@ -87,6 +87,8 @@ data = load(data_path);
 %% 3. 为每个 Ratio 值循环绘图
 plots_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'manuscript', 'V2', 'manuscirpt', 'figures');
 if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
+test_plots_dir = fullfile(fileparts(mfilename('fullpath')), 'fig');
+if ~exist(test_plots_dir, 'dir'), mkdir(test_plots_dir); end
 
 for r_idx = 1:length(SELECTED_RATIOS)
     target_ratio = SELECTED_RATIOS(r_idx);
@@ -171,7 +173,9 @@ for r_idx = 1:length(SELECTED_RATIOS)
 
     % 保存图片
     fig_suffix = char('d' + r_idx - 1);
-    fname = fullfile(plots_dir, sprintf('fig2%s.eps', fig_suffix));
-    exportgraphics(h, fname);
-    fprintf('[DONE] Ratio=%.2f 的相图已导出: %s\n', actual_ratio, fname);
+    % fname = fullfile(plots_dir, sprintf('fig2%s.eps', fig_suffix));
+    % exportgraphics(h, fname);
+    test_fname = fullfile(test_plots_dir, sprintf('fig2%s.png', fig_suffix));
+    exportgraphics(h, test_fname, 'Resolution', 300);
+    fprintf('[DONE] Ratio=%.2f 的测试相图已保存: %s\n', actual_ratio, test_fname);
 end

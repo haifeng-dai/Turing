@@ -89,13 +89,18 @@ for i = 1:num_p
 end
 
 xlabel('$\sigma$', 'FontSize', 18, 'Interpreter', 'latex'); ylabel('$A(\sigma)$', 'FontSize', 18, 'Interpreter', 'latex');
-xlim([10, 25]); ylim([0, 140]);
+xlim([10, 25]);
+% ylim([0, 140]);
 legend('Location', 'NorthWest', 'FontSize', 18, 'NumColumns', 2, 'Interpreter', 'latex');
 grid on; set(ax, 'Box', 'on', 'FontSize', 18, 'TickLabelInterpreter', 'latex');
 
 % 图像导出
 plots_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'manuscript', 'V2', 'manuscirpt', 'figures');
 if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
-fname = fullfile(plots_dir, 'fig3a.eps');
-exportgraphics(h, fname);
-fprintf('[DONE] 绘图已更新: %s\n', fname);
+% fname = fullfile(plots_dir, 'fig3a.eps');
+% exportgraphics(h, fname);
+test_plots_dir = fullfile(fileparts(mfilename('fullpath')), 'fig');
+if ~exist(test_plots_dir, 'dir'), mkdir(test_plots_dir); end
+test_fname = fullfile(test_plots_dir, 'fig3a.png');
+exportgraphics(h, test_fname, 'Resolution', 300);
+fprintf('[DONE] 测试图片已保存: %s\n', test_fname);

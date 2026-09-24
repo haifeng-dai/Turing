@@ -57,8 +57,14 @@ Y(1, :) = y';
 current_sample = 2;
 
 % 5. 仿真核心逻辑
-% 固定随机种子，确保每次求解使用相同的逐边独立噪声序列。
-rng(1024, 'twister');
+% 默认保持原噪声序列；可选 cfg.noise_seed 仅控制噪声流，不改变全局随机状态。
+if isfield(cfg, 'noise_seed') && ~isempty(cfg.noise_seed)
+    noise_stream = RandStream('mt19937ar', 'Seed', cfg.noise_seed);
+    use_local_noise_stream = true;
+else
+    rng(1024, 'twister');
+    use_local_noise_stream = false;
+end
 
 % --- 5.1 性能控制变量 ---
 A_sum = 0; A_count = 0;
@@ -78,7 +84,11 @@ for n = 1:total_steps
     % 同一条边在 u/v 方程中共用 dW_edge；不同无向边彼此独立。
     if cfg.noise ~= 0
         state_diffs = B_edge * [u, v];
-        dW_edge = sqrt(dt) * randn(length(edge_coeff), 1);
+        if use_local_noise_stream
+            dW_edge = sqrt(dt) * randn(noise_stream, length(edge_coeff), 1);
+        else
+            dW_edge = sqrt(dt) * randn(length(edge_coeff), 1);
+        end
         edge_fluxes = edge_coeff .* state_diffs .* dW_edge;
         noise_terms = -cfg.noise * (B_edge' * edge_fluxes);
 

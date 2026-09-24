@@ -10,8 +10,10 @@
 *.asv
 *.synctex
 *.mat
-*test*
 *.xdv
 *.dvi
 *.synctex(busy)
+*.png
 .DS_Store
+
+*test*

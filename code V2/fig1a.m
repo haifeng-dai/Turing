@@ -2,8 +2,6 @@
 clear; clc; close all;
 addpath('simulations', 'networks');
 
-RUN_SIMULATION = true;  % 控制是否运行仿真 (true: 运行并保存, false: 直接读取并绘图)
-
 % ==========================================
 % 1. 基本参数设置 (针对噪声影响 分析)
 % ==========================================
@@ -29,21 +27,38 @@ DYNA.sigma_npts = 71;   % 对应 0.1 的步长
 % 基于全连通配置层间拉普拉斯矩阵
 adj_inter = ones(DYNA.K) - eye(DYNA.K);
 DYNA.L_inter = diag(sum(adj_inter, 2)) - adj_inter;
+results_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
 
 % ==========================================
 % 2. 【核心计算区】(批量运行滞后扫描)
 % ==========================================
-if RUN_SIMULATION
-    fprintf('\n[INFO] 正在启动 %d 批量滞后扫描仿真 (Parallel)...\n', length(ETA_LIST));
+% 只在扫描结果缺失时生成标准种子并运行对应噪声的扫描
+missing_result = false(size(ETA_LIST));
+for i = 1:length(ETA_LIST)
+    mat_name = sprintf('hysteresis_%s_N%d_K%d_p%.3f_a%.3f_b%.3f_n%.2f_results.mat', ...
+        lower(TOPO_TYPE), DYNA.N, DYNA.K, TOPO_PARAM, DYNA.alpha, DYNA.beta, ETA_LIST(i));
+    missing_result(i) = ~exist(fullfile(results_dir, mat_name), 'file');
+end
+
+if any(missing_result)
+    seed_name = sprintf('evolution_er_N%d_K%d_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', ...
+        DYNA.N, DYNA.K);
+    seed_file = fullfile(results_dir, seed_name);
+    if ~exist(seed_file, 'file')
+        dyna_seed = DYNA;
+        dyna_seed.sigma = 100;
+        dyna_seed.noise = 0;
+        pattern_evolution(dyna_seed, TOPO_TYPE, TOPO_PARAM, false);
+    end
+
+    fprintf('\n[INFO] 正在运行 %d 组缺失的滞后扫描 (Parallel)...\n', sum(missing_result));
     simStart = tic;
-    for i = 1:length(ETA_LIST)
+    for i = find(missing_result)
         dyna_local = DYNA;
         dyna_local.noise = ETA_LIST(i);
-
-        % 调用更新后的仿真接口 (3 参数版)
         sweep_param(TOPO_TYPE, TOPO_PARAM, dyna_local);
     end
-    fprintf('[INFO] 批量扫描完成。总耗时: %.2f 秒。\n', toc(simStart));
+    fprintf('[INFO] 缺失扫描已完成。总耗时: %.2f 秒。\n', toc(simStart));
 end
 
 % ==========================================
@@ -59,7 +74,7 @@ for i = 1:length(ETA_LIST)
     cur_eta = ETA_LIST(i);
     mat_name = sprintf('hysteresis_%s_N%d_K%d_p%.3f_a%.3f_b%.3f_n%.2f_results.mat', ...
         lower(TOPO_TYPE), DYNA.N, DYNA.K, TOPO_PARAM, DYNA.alpha, DYNA.beta, cur_eta);
-    data_file = fullfile('results', mat_name);
+    data_file = fullfile(results_dir, mat_name);
     if exist(data_file, 'file')
         res = load(data_file);
         plot(res.sigma_range, res.A_fwd , '-o', 'Color', colors(i,:), 'LineWidth', 2, ...
@@ -74,7 +89,7 @@ for i = 1:length(ETA_LIST)
     cur_eta = ETA_LIST(i);
     mat_name = sprintf('hysteresis_%s_N%d_K%d_p%.3f_a%.3f_b%.3f_n%.2f_results.mat', ...
         lower(TOPO_TYPE), DYNA.N, DYNA.K, TOPO_PARAM, DYNA.alpha, DYNA.beta, cur_eta);
-    data_file = fullfile('results', mat_name);
+    data_file = fullfile(results_dir, mat_name);
     if exist(data_file, 'file')
         res = load(data_file);
         plot(res.sigma_range, res.A_bwd, '--^', 'Color', colors(i,:), 'LineWidth', 2, ...

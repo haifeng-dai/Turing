@@ -2,7 +2,7 @@
 clear; clc; close all;
 addpath('simulations', 'networks');
 
-RUN_SIMULATION = false;  % 控制是否运行仿真 (true: 运行并保存, false: 直接读取并绘图)
+RUN_SIMULATION = true;  % 控制是否运行仿真 (true: 运行并保存, false: 直接读取并绘图)
 
 % ==========================================
 % 0. 实验参数配置
@@ -100,13 +100,18 @@ end
 
 % title('Hysteresis Loop across WS Network Rewiring Probability (p)', 'FontSize', 12);
 xlabel('$\sigma$', 'FontSize', 18, 'Interpreter', 'latex'); ylabel('$A(\sigma)$', 'FontSize', 18, 'Interpreter', 'latex');
-xlim([10, 30]); ylim([0, 140]);
+xlim([10, 30]);
+% ylim([0, 140]);
 legend('Location', 'NorthWest', 'FontSize', 18, 'Interpreter', 'latex', 'NumColumns', 2);
 grid on; set(ax, 'Box', 'on', 'FontSize', 18, 'TickLabelInterpreter', 'latex');
 
 % 图像导出
 plots_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'manuscript', 'V2', 'manuscirpt', 'figures');
 if ~exist(plots_dir, 'dir'), mkdir(plots_dir); end
-fname = fullfile(plots_dir, 'fig3b.eps');
-exportgraphics(h, fname);
-fprintf('[DONE] 绘图已更新: %s\n', fname);
+% fname = fullfile(plots_dir, 'fig3b.eps');
+% exportgraphics(h, fname);
+test_plots_dir = fullfile(fileparts(mfilename('fullpath')), 'fig');
+if ~exist(test_plots_dir, 'dir'), mkdir(test_plots_dir); end
+test_fname = fullfile(test_plots_dir, 'fig3b.png');
+exportgraphics(h, test_fname, 'Resolution', 300);
+fprintf('[DONE] 测试图片已保存: %s\n', test_fname);

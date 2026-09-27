@@ -70,6 +70,10 @@ end
 A_sum = 0; A_count = 0;
 A_start_step = floor(0.8 * total_steps);
 prev_A = -1; % 用于收敛探测逻辑
+detect_convergence = true;
+if isfield(cfg, 'detect_convergence')
+    detect_convergence = cfg.detect_convergence;
+end
 
 for n = 1:total_steps
     % --- 5.1 计算局部动力学响应 ---
@@ -122,7 +126,7 @@ for n = 1:total_steps
 
         % B. 自动稳态判定 (Convergence Analysis)
         % 如果已经运行超过 10%，且序参数不再剧烈波动，提前判定为已平衡
-        if n > 0.1 * total_steps && prev_A > 0
+        if detect_convergence && n > 0.1 * total_steps && prev_A > 0
             if abs(A_curr - prev_A) < (A_curr * 1e-6 + 1e-8)
                 if current_sample <= cfg.steps
                     Y(current_sample:end, :) = repmat([u', v'], cfg.steps - current_sample + 1, 1);

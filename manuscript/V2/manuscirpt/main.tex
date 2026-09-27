@@ -159,6 +159,19 @@ Similarly, for matrices $A_i \in \mathbb{R}^{m\times m}$, $\dd(\{A_i\}\inn)$ den
 
 \section{Activator-inhibitor systems on multiplex networks}\label{multiplex}
 
+\begin{figure}[!tb]
+	\centering
+	\includegraphics[width=0.7\textwidth]{figures/topology}
+
+	\caption{
+	Schematic representation of a multiplex network and its inter-layer coupling structures.
+	(a) A three-layer multiplex network, where each layer has its own intra-layer topology represented by black solid edges. Corresponding replicas of the same node across layers are connected by inter-layer couplings, shown by gray dashed edges; the highlighted nodes $i^{(1)}$, $i^{(2)}$, and $i^{(3)}$ illustrate inter-layer links with coupling strength $\beta$.
+	(b) Complete inter-layer topology, in which every pair of layers is connected.
+	(c) Path-type inter-layer topology, in which the layers are connected sequentially through an intermediate layer.
+	}
+	\label{fig:multiplexs}
+\end{figure}
+
 The single-layered networked activator-inhibitor systems can be described as follows \cite{Nakao2010}:
 \begin{equation*}
 	\dot{u}_i = f(u_i,v_i) + \alpha\sum_{j=1}^N a_{ij} (u_j - u_i), ~~~~

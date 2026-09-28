@@ -14,7 +14,7 @@ TOPO_TYPE = 'ER';
 N = 200;
 K = 5;
 P_VAL_FIXED = 0.030;
-ALPHA_FIXED = 0.05;
+ALPHA_FIXED = 0.1;
 ETA_REFERENCE = 0.01;  % Fig. 2 仿真配置中的噪声参数；谱计算不使用它
 
 ALPHA_TOL = 1e-10;

@@ -8,19 +8,21 @@ topo_base = fullfile(fileparts(mfilename('fullpath')), '..', 'results', 'topolog
 type_u = upper(topo_type);                    % 将拓扑类型转为大写（如 'er' -> 'ER'）
 
 %% 2. 拓扑库动态加载 (适配扁平化映射)
-% 根据网络大小 N 和生成的概率 p（或 m 等）拼接对应的 .mat 文件名
-switch type_u
-    case 'ER', net_file = fullfile(topo_base, 'ER', sprintf('N%d_p%.3f.mat', cfg.N, topo_val));
-    case 'WS', net_file = fullfile(topo_base, 'WS', sprintf('N%d_pr%.2f.mat', cfg.N, topo_val));
-    case 'BA', net_file = fullfile(topo_base, 'BA', sprintf('N%d_m%d.mat', cfg.N, topo_val));
-    case 'SF', net_file = fullfile(topo_base, 'SF', sprintf('N%d_g%.1f.mat', cfg.N, topo_val));
-    otherwise, error('未知拓扑类型: %s', topo_type);
-end
+% 若调用方已传入层内网络，则直接使用；否则从拓扑库加载。
+if ~isfield(cfg, 'L_intra') || isempty(cfg.L_intra)
+    % 根据网络大小 N 和生成参数拼接对应的 MAT 文件名。
+    switch type_u
+        case 'ER', net_file = fullfile(topo_base, 'ER', sprintf('N%d_p%.3f.mat', cfg.N, topo_val));
+        case 'WS', net_file = fullfile(topo_base, 'WS', sprintf('N%d_pr%.2f.mat', cfg.N, topo_val));
+        case 'BA', net_file = fullfile(topo_base, 'BA', sprintf('N%d_m%d.mat', cfg.N, topo_val));
+        case 'SF', net_file = fullfile(topo_base, 'SF', sprintf('N%d_g%.1f.mat', cfg.N, topo_val));
+        otherwise, error('未知拓扑类型: %s', topo_type);
+    end
 
-% 检查网络文件是否存在，不存在则终止报错
-if ~exist(net_file, 'file'), error('找不到网络文件: %s', net_file); end
-data = load(net_file, 'nets');                % 从磁盘加载保存好的网络结构
-cfg.L_intra = data.nets;                      % 将拉普拉斯算子池存入配置结构体中
+    if ~exist(net_file, 'file'), error('找不到网络文件: %s', net_file); end
+    data = load(net_file, 'nets');
+    cfg.L_intra = data.nets;
+end
 
 %% 3. 仿真实时参数配置
 cfg.dt = 0.005;                               % 设置较大的步长，加快寻找稳态的速度
@@ -81,7 +83,10 @@ A_bwd = fliplr(A_results(npts+1:end));         % 获取反向计算点，翻转�
 %% 8. 结果持久化与保存到磁盘
 % 根据仿真背景生成唯一的输出文件名
 % 如果配置中包含层间拓扑信息，则在文件名中包含该信息
-if isfield(cfg, 'inter_topo') && ~isempty(cfg.inter_topo)
+if isfield(cfg, 'cache_tag') && ~isempty(cfg.cache_tag)
+    mat_name = sprintf('hysteresis_%s_N%d_K%d_p%.3f_a%.3f_b%.3f_n%.2f_%s_results.mat', ...
+        lower(topo_type), cfg.N, cfg.K, topo_val, cfg.alpha, cfg.beta, cfg.noise, cfg.cache_tag);
+elseif isfield(cfg, 'inter_topo') && ~isempty(cfg.inter_topo)
     mat_name = sprintf('hysteresis_%s_N%d_K%d_p%.3f_a%.3f_b%.3f_n%.2f_inter_%s_results.mat', ...
         lower(topo_type), cfg.N, cfg.K, topo_val, cfg.alpha, cfg.beta, cfg.noise, cfg.inter_topo);
 else

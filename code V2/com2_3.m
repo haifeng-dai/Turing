@@ -245,8 +245,8 @@ mu_max_plot = max(all_mu_values);
 mu_padding = max(0.04*(mu_max_plot-mu_min_plot), 1e-3);
 common_ylim = [mu_min_plot-mu_padding, mu_max_plot+mu_padding];
 
-out_img = fullfile(fig_dir, 'dispersion_and_modes_alpha010.png');
-out_mat = fullfile(res_dir, 'dispersion_and_modes_alpha010.mat');
+out_img = fullfile(fig_dir, 'com2_3.png');
+out_mat = fullfile(res_dir, 'com2_3.mat');
 fig = figure('Visible', 'off', 'Color', 'w', 'Units', 'pixels', ...
     'Position', [80 80 1350 900]);
 layout = tiledlayout(fig, 2, 2, 'TileSpacing', 'compact', 'Padding', 'compact');

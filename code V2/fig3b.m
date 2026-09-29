@@ -16,7 +16,7 @@ DYNA.K = 5;
 DYNA.alpha = 0.05;
 DYNA.beta  = 0.1 * DYNA.alpha;
 DYNA.noise = 0.1;
-DYNA.T_END = 200;
+DYNA.T_END = 500;
 DYNA.steps = 2;
 DYNA.init_perturb = 0.1;
 
@@ -36,7 +36,8 @@ num_k = length(K_VALS);
 results_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
 if ~exist(results_dir, 'dir'), mkdir(results_dir); end
 
-FORCE_RERUN = false; % true: 强制重算并覆盖旧数据；false: 优先读取已有缓存
+% 模拟时长已从 200 改为 500；首次运行必须重算旧缓存。
+FORCE_RERUN = true; % true: 强制重算并覆盖旧数据；false: 优先读取已有缓存
 
 % 检查结果是否缺失或强制重算
 missing_result = false(1, num_k);

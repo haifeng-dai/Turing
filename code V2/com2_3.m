@@ -62,17 +62,19 @@ sigma_c_spec = sigma_c_spec_all(selected_indices);
 lambda_all_selected = cell(1, n_selected);
 mu_all_selected = cell(1, n_selected);
 mu_cont = cell(1, n_selected);
-dominant_energy = cell(1, n_selected);
 dominant_basis = cell(1, n_selected);
+critical_modes = cell(1, n_selected);
+critical_projector_diag = cell(1, n_selected);
+IPR_full = NaN(1, n_selected);
+% 对完整 NK 维单位归一化 supra-eigenvector，完全离域时 IPR=1/(NK)。
+IPR_reference = 1/(N*K);
+% 仅作数值一致性检查，不作为论文正式指标。
+sync_projection_norm = NaN(1, n_selected);
 q_danger = NaN(1, n_selected);
 mu_max = NaN(1, n_selected);
 multiplicity = NaN(1, n_selected);
 gap_left = NaN(1, n_selected);
 gap_right = NaN(1, n_selected);
-synchronous_fraction = NaN(1, n_selected);
-transverse_fraction = NaN(1, n_selected);
-effective_nodes = NaN(1, n_selected);
-participation_fraction = NaN(1, n_selected);
 
 for j = 1:n_selected
     idx = selected_indices(j);
@@ -139,6 +141,8 @@ L_inter_big = kron(L_inter, speye(N));
 
 J = [10/3, -5; 10, -4];
 degeneracy_tolerance = zeros(1, n_selected);
+% 层同步子空间投影仅用于内部数值一致性检查。
+P_sync = kron(ones(K)/K, speye(N));
 for j = 1:n_selected
     idx = selected_indices(j);
     spectrum = lambda_all_selected{j};
@@ -208,26 +212,41 @@ for j = 1:n_selected
             warning('r=%.1f 的 phi_star 与已有网络特征向量残差较大：%.4g。', ...
                 selected_ratios(j), residual);
         end
-        V_mode = orth(V_mode);
     end
     dominant_basis{j} = V_mode;
 
-    mode_energy = zeros(K, N);
-    sync_energy = 0;
-    for mode_idx = 1:size(V_mode, 2)
-        M = reshape(V_mode(:, mode_idx), [N, K])';
-        mode_energy = mode_energy + abs(M).^2;
-        M_sync = repmat(mean(M, 1), K, 1);
-        sync_energy = sync_energy + norm(M_sync, 'fro')^2;
+    % 临界模态或临界特征子空间的空间表示。
+    if multiplicity(j) > 1
+        % 由于临界特征值简并，不存在唯一临界特征向量。
+        % 显示临界特征子空间正交投影矩阵的对角线；该量对
+        % 简并子空间内部的正交基变换不敏感。
+        projector_diag = sum(abs(V_mode).^2, 2);
+        critical_projector_diag{j} = reshape(projector_diag, [N, K])';
+        critical_modes{j} = [];
+        IPR_full(j) = NaN;
+        sync_projection_norm(j) = ...
+            norm(P_sync*V_mode, 'fro') / norm(V_mode, 'fro');
+    else
+        % 非简并时使用前面已经校验过的真实主导特征向量。
+        phi = real(V_mode(:));
+        phi = phi / norm(phi, 2);
+
+        % 固定整体符号以便图形可重复；整体正负号不改变特征向量含义。
+        [~, imax] = max(abs(phi));
+        if phi(imax) < 0
+            phi = -phi;
+        end
+
+        critical_modes{j} = reshape(phi, [N, K])';
+        critical_projector_diag{j} = [];
+        IPR_full(j) = sum(abs(phi).^4) / (sum(abs(phi).^2)^2);
+        sync_projection_norm(j) = ...
+            norm((speye(N*K)-P_sync)*phi) / norm(phi);
     end
-    mode_energy = mode_energy / sum(mode_energy(:));
-    dominant_energy{j} = mode_energy;
-    synchronous_fraction(j) = sync_energy / size(V_mode, 2);
-    synchronous_fraction(j) = min(1, max(0, synchronous_fraction(j)));
-    transverse_fraction(j) = 1 - synchronous_fraction(j);
-    node_energy = sum(mode_energy, 1);
-    effective_nodes(j) = 1 / sum(node_energy.^2);
-    participation_fraction(j) = effective_nodes(j) / N;
+
+    if abs(selected_ratios(j)-4.4) < 1e-8 && sync_projection_norm(j) > 1e-6
+        warning('r=4.4 的临界子空间并非纯 transverse，请检查。');
+    end
 end
 
 lambda_cont_max = max(cellfun(@max, lambda_all_selected));
@@ -237,7 +256,7 @@ for j = 1:n_selected
     mu_cont{j} = growthRates(lambda_cont, alpha, sigma_c_spec(j), J);
 end
 
-%% 4. 绘制色散关系与主导模态能量图
+%% 4. 绘制色散关系与临界模态表示
 all_mu_values = [mu_all_selected{1}(:); mu_all_selected{2}(:); ...
     mu_cont{1}(:); mu_cont{2}(:); 0];
 mu_min_plot = min(all_mu_values);
@@ -254,16 +273,16 @@ layout = tiledlayout(fig, 2, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
 for j = 1:n_selected
     ax = nexttile(layout, j);
     hold(ax, 'on');
-    h_curve = plot(ax, lambda_cont, mu_cont{j}, 'k-', 'LineWidth', 1.8, ...
+    plot(ax, lambda_cont, mu_cont{j}, 'k-', 'LineWidth', 1.8, ...
         'DisplayName', 'Continuous dispersion');
     spectrum = lambda_all_selected{j};
     mu_values = mu_all_selected{j};
-    h_modes = scatter(ax, spectrum(2:end), mu_values(2:end), ...
+    scatter(ax, spectrum(2:end), mu_values(2:end), ...
         13, [0.20 0.48 0.78], 'filled', 'MarkerFaceAlpha', 0.45, ...
         'DisplayName', 'Discrete modes');
-    h_zero = scatter(ax, spectrum(1), mu_values(1), ...
+    scatter(ax, spectrum(1), mu_values(1), ...
         45, [0.65 0.65 0.65], 'o', 'filled', 'DisplayName', 'Uniform mode');
-    h_dominant = scatter(ax, lambda_star(j), mu_max(j), 110, ...
+    scatter(ax, lambda_star(j), mu_max(j), 110, ...
         [0.85 0.20 0.16], 'p', 'filled', 'MarkerEdgeColor', 'k', ...
         'DisplayName', 'Dominant mode');
     yline(ax, 0, 'k:', 'HandleVisibility', 'off');
@@ -281,29 +300,46 @@ for j = 1:n_selected
     grid(ax, 'on'); box(ax, 'on');
 end
 
-energy_max = max(cellfun(@(H) max(H(:)), dominant_energy));
+signed_map = blueWhiteRedMap(257);
+signed_color_limit = 0.4;
 for j = 1:n_selected
     ax = nexttile(layout, j+2);
-    imagesc(ax, 1:N, 1:K, dominant_energy{j});
-    set(ax, 'YDir', 'normal', 'YTick', 1:K);
-    clim(ax, [0 energy_max]);
-    xlabel(ax, 'Node index i');
-    ylabel(ax, 'Layer k');
     if multiplicity(j) > 1
-        mode_label = 'dominant eigenspace energy';
+        Mproj = critical_projector_diag{j};
+        imagesc(ax, 1:N, 1:K, Mproj);
+        set(ax, 'YDir', 'normal', 'YTick', 1:K);
+        % 与右下图共用同一套蓝—白—红色图。
+        colormap(ax, signed_map);
+
+        % 与右下特征向量图统一使用固定的对称色标范围。
+        clim(ax, [-signed_color_limit signed_color_limit]);
+
+        xlabel(ax, 'Node index i');
+        ylabel(ax, 'Layer k');
+        title(ax, sprintf(['(%c) Critical eigenspace projector\n' ...
+            'r=%.1f, \\lambda_*=%.4f, multiplicity=%d'], ...
+            char('a'+j+1), selected_ratios(j), ...
+            lambda_star(j), multiplicity(j)), 'Interpreter', 'tex');
+        cb = colorbar(ax, 'Location', 'eastoutside');
+        cb.Label.String = 'Diagonal of critical eigenspace projector';
     else
-        mode_label = 'dominant mode energy';
+        M = critical_modes{j};
+        imagesc(ax, 1:N, 1:K, M);
+        set(ax, 'YDir', 'normal', 'YTick', 1:K);
+
+        clim(ax, [-signed_color_limit signed_color_limit]);
+        colormap(ax, signed_map);
+        xlabel(ax, 'Node index i');
+        ylabel(ax, 'Layer k');
+        title(ax, sprintf(['(%c) Normalized critical eigenvector\n' ...
+            'r=%.1f, \\lambda_*=%.4f, IPR=%.4g'], ...
+            char('a'+j+1), selected_ratios(j), ...
+            lambda_star(j), IPR_full(j)), 'Interpreter', 'tex');
+        cb = colorbar(ax, 'Location', 'eastoutside');
+        cb.Label.String = 'Normalized eigenvector component';
     end
-    title(ax, sprintf(['(%c) %s, r=%.1f, \\lambda_*=%.4f, mult=%d, ' ...
-        'transverse=%.3f, N_{eff}=%.2f'], char('a'+j+1), ...
-        mode_label, selected_ratios(j), lambda_star(j), multiplicity(j), ...
-        transverse_fraction(j), effective_nodes(j)), 'Interpreter', 'tex', 'FontSize', 10);
     box(ax, 'on');
 end
-colormap(fig, parula(256));
-color_bar = colorbar;
-color_bar.Layout.Tile = 'east';
-color_bar.Label.String = 'Normalized modal energy';
 exportgraphics(fig, out_img, 'Resolution', 300);
 
 %% 5. 检查参考值并打印指定摘要
@@ -324,27 +360,45 @@ for j = 1:n_selected
         warning('r=%.1f 的临界增长率 |mu_max|=%.4g 未接近零。', ...
             selected_ratios(j), abs(mu_max(j)));
     end
-    fprintf(['r=%.1f, sigma_c_spec=%.8g, q_star=%d, lambda_star=%.8g, ' ...
-        'mu_max=%.4g, |mu_max|=%.4g, multiplicity=%d, gap_left=%.4g, ' ...
-        'gap_right=%.4g, synchronous_fraction=%.5f, transverse_fraction=%.5f, ' ...
-        'N_eff=%.4f, N_eff/N=%.5f\n'], ...
-        selected_ratios(j), sigma_c_spec(j), round(q_star(j)), lambda_star(j), ...
-        mu_max(j), abs(mu_max(j)), multiplicity(j), gap_left(j), gap_right(j), ...
-        synchronous_fraction(j), transverse_fraction(j), effective_nodes(j), ...
-        participation_fraction(j));
+    fprintf(['r=%.1f, lambda_star=%.8g, mu_max=%.4g, ' ...
+        'multiplicity=%d'], selected_ratios(j), lambda_star(j), ...
+        mu_max(j), multiplicity(j));
+    if multiplicity(j) == 1
+        fprintf(', IPR_full=%.8g, 1/(NK)=%.8g', ...
+            IPR_full(j), IPR_reference);
+    else
+        fprintf(', IPR_full=not defined for a unique mode (degenerate)');
+    end
+    fprintf('\n');
 end
+fprintf('r=4.4 critical-subspace synchronous projection norm = %.4g\n', ...
+    sync_projection_norm(1));
 fprintf('lambda_opt=%.8g\n', lambda_opt);
 
 save(out_mat, 'selected_ratios', 'lambda_all_selected', 'mu_all_selected', ...
     'lambda_cont', 'mu_cont', 'lambda_star', 'q_star', 'q_danger', ...
-    'mu_max', 'sigma_c_spec', 'lambda_opt', 'sigma_min', 'dominant_energy', ...
-    'multiplicity', 'gap_left', 'gap_right', 'synchronous_fraction', ...
-    'transverse_fraction', 'effective_nodes', 'participation_fraction', ...
+    'mu_max', 'sigma_c_spec', 'lambda_opt', 'sigma_min', 'critical_modes', ...
+    'critical_projector_diag', 'IPR_full', 'IPR_reference', ...
+    'sync_projection_norm', 'multiplicity', 'gap_left', 'gap_right', ...
     'degeneracy_tolerance', 'alpha', 'N', 'K', 'topology_file', 'input_file', ...
     'dominant_basis', '-v7');
 fprintf('图片：%s\nMAT：%s\n', out_img, out_mat);
 
 %% 局部函数
+function map = blueWhiteRedMap(n_colors)
+% 构造零值为浅奶白色的蓝白红发散色图。
+half_count = floor((n_colors+1)/2);
+red_count = n_colors-half_count+1;
+neutral_color = [1.00 0.985 0.95];
+blue_to_neutral = [linspace(0, neutral_color(1), half_count)', ...
+    linspace(0, neutral_color(2), half_count)', ...
+    linspace(1, neutral_color(3), half_count)'];
+neutral_to_red = [linspace(neutral_color(1), 1, red_count)', ...
+    linspace(neutral_color(2), 0, red_count)', ...
+    linspace(neutral_color(3), 0, red_count)'];
+map = [blue_to_neutral; neutral_to_red(2:end, :)];
+end
+
 function value = getRequiredField(S, candidates)
 % 按候选名称读取必需字段。
 for i = 1:numel(candidates)

@@ -39,20 +39,16 @@ if ~exist(threshold_file, 'file')
 end
 
 threshold_data = load(threshold_file, 'SF_Matrix', 'SB_Matrix', ...
-    'ALPHA_LIST', 'RATIO_LIST', 'BETA_LIST', 'P_VAL_FIXED');
+    'ALPHA_LIST', 'RATIO_LIST', 'P_VAL_FIXED');
 if ~isfield(threshold_data, 'SF_Matrix') || ...
         ~isfield(threshold_data, 'SB_Matrix') || ...
         ~isfield(threshold_data, 'ALPHA_LIST')
     error('阈值 MAT 文件缺少 SF_Matrix、SB_Matrix 或 ALPHA_LIST。');
 end
-if isfield(threshold_data, 'RATIO_LIST')
-    ratio_axis = threshold_data.RATIO_LIST(:)';
-elseif isfield(threshold_data, 'BETA_LIST')
-    % Figure 2 当前文件应保存 beta/alpha；此分支兼容旧版文件。
-    ratio_axis = threshold_data.BETA_LIST(:)' ./ 0.1;
-else
-    error('阈值 MAT 文件中找不到 RATIO_LIST 或 BETA_LIST。');
+if ~isfield(threshold_data, 'RATIO_LIST')
+    error('阈值 MAT 文件中缺少 RATIO_LIST。');
 end
+ratio_axis = threshold_data.RATIO_LIST(:)';
 
 alpha_requested = 0.10;
 [alpha_error, alpha_idx] = min(abs(threshold_data.ALPHA_LIST(:)' - alpha_requested));
@@ -67,7 +63,11 @@ if size(threshold_data.SF_Matrix, 1) < alpha_idx || ...
     error('SF_Matrix/SB_Matrix 尺寸与 ALPHA_LIST、ratio 轴不一致。');
 end
 
-requested_R_LIST = [0.1 4.5 8.0];
+requested_R_LIST = [0.1]; % [0.1 4.5 8.0]
+% 本机需要补算的 beta/alpha。三台设备可以分别设置为 [0.1]、[4.5]、[8.0]。
+% 设置为空数组时不进行仿真，只读取已有的各 r 结果并绘图。
+RUN_REQUESTED_R_LIST = requested_R_LIST;
+FORCE_RERUN = false;
 R_LIST = zeros(size(requested_R_LIST));
 sigma_f = zeros(size(requested_R_LIST));
 sigma_b = zeros(size(requested_R_LIST));
@@ -130,7 +130,7 @@ L_inter = diag(sum(adj_inter, 2)) - adj_inter;
 R_LIST = R_LIST(:)';
 C_LIST = 0:0.05:1;
 N_REALIZATIONS = 100;
-SEED_BASE = 20260927;
+SEED_BASE = 1024;
 N_WORKERS_REQUESTED = 64;
 INITIAL_PERTURBATION_RELATIVE_RMS = 1e-3;
 CONTINUATION_MAX_STEP = 5.0;
@@ -163,104 +163,192 @@ zeta = [zeta_u; zeta_v];
 zeta = zeta / norm(zeta);
 epsilon_initial = INITIAL_PERTURBATION_RELATIVE_RMS * norm(x_H);
 
-% 优先选同网络、同 alpha/beta/noise 且 sigma 不低于目标值的已存 backward 状态；
-% 若不存在，则使用同网络的最高 sigma 已存斑图作为延拓起点。
-pattern_seed_state = cell(size(R_LIST));
-pattern_seed_sigma = NaN(size(R_LIST));
-pattern_seed_source = cell(size(R_LIST));
-for r_idx = 1:numel(R_LIST)
-    beta = alpha * R_LIST(r_idx);
-    [pattern_seed_state{r_idx}, pattern_seed_sigma(r_idx), ...
-        pattern_seed_source{r_idx}] = findPatternSeed(results_dir, ...
-        topology_type, N, K, topology_parameter, alpha, beta, ...
-        noise_intensity, sigma_test(r_idx), L_intra, classification_threshold);
-end
+% 斑图种子只在当前设备确实需要补算某个 r 时读取，避免读取/检查
+% 未分配给本机的另外两条曲线。
 
-%% 3. 生成并确认各个 coupling ratio 的斑图参考状态
-timer_total = tic;
-pool = startLocalPool(N_WORKERS_REQUESTED);
-actual_workers = pool.NumWorkers;
-fprintf('Requested workers: %d\nActual workers: %d\n', ...
-    N_WORKERS_REQUESTED, actual_workers);
-
+%% 3. 每个 coupling ratio 使用独立缓存文件
+% 每个 r 保存为一个独立 MAT 文件，便于多台设备分开计算和补算。
+% 已完成的 (c, realization) 不会重复运行；缺失项会在下一次运行时补齐。
 n_ratio = numel(R_LIST);
-pattern_reference_states = cell(1, n_ratio);
-reference_A_final = NaN(1, n_ratio);
-reference_continuation_steps = zeros(1, n_ratio);
-reference_source = pattern_seed_source;
-parfor r_idx = 1:n_ratio
-    cfg_r = base_cfg;
-    cfg_r.beta = alpha * R_LIST(r_idx);
-    [x_pattern_local, A_reference_local, continuation_count_local] = buildPatternReference( ...
-        cfg_r, pattern_seed_state{r_idx}, pattern_seed_sigma(r_idx), ...
-        sigma_test(r_idx), classification_threshold, SEED_BASE, r_idx, ...
-        CONTINUATION_MAX_STEP, CONTINUATION_MIN_STEP);
-    pattern_reference_states{r_idx} = x_pattern_local;
-    reference_A_final(r_idx) = A_reference_local;
-    reference_continuation_steps(r_idx) = continuation_count_local;
-end
-if any(reference_A_final <= classification_threshold)
-    error('至少一个斑图参考状态未通过现有 A_cut=%.6g 分类阈值。', ...
-        classification_threshold);
-end
-for r_idx = 1:n_ratio
-    if reference_A_final(r_idx) <= 5 * classification_threshold
-        warning('r=%.3f 的参考斑图振幅仅为 A_cut 的 %.2f 倍，请检查状态分离。', ...
-            R_LIST(r_idx), reference_A_final(r_idx) / classification_threshold);
-    end
-end
-
-%% 4. 扁平任务表与独立随机 realization
 n_c = numel(C_LIST);
-n_jobs = n_ratio * n_c * N_REALIZATIONS;
-[job_ratio_grid, job_c_grid, job_realization_grid] = ndgrid( ...
-    1:n_ratio, 1:n_c, 1:N_REALIZATIONS);
-job_ratio = job_ratio_grid(:);
-job_c = job_c_grid(:);
-job_realization = job_realization_grid(:);
-job_seed = SEED_BASE + job_realization;
-A_final_flat = NaN(n_jobs, 1);
-
-parfor job_id = 1:n_jobs
-    r_idx = job_ratio(job_id);
-    c_idx = job_c(job_id);
-    c_value = C_LIST(c_idx);
-    x_P = pattern_reference_states{r_idx};
-    y0 = x_H + c_value * (x_P - x_H) + epsilon_initial * zeta;
-
-    cfg = base_cfg;
-    cfg.beta = alpha * R_LIST(r_idx);
-    cfg.sigma = sigma_test(r_idx);
-    cfg.y0 = y0;
-    cfg.noise_seed = job_seed(job_id);
-    cfg.detect_convergence = false;
-    [~, ~, cfg_out] = solve_multiplex(cfg);
-    A_final_flat(job_id) = cfg_out.A_final;
-end
-A_final_all = reshape(A_final_flat, [n_ratio, n_c, N_REALIZATIONS]);
-total_wall_time = toc(timer_total);
-n_continuation_integrations = sum(reference_continuation_steps);
-n_total_simulations = n_jobs + n_continuation_integrations;
-
-%% 5. 分类概率、Wilson 区间与 c50
-n_pattern = sum(A_final_all > classification_threshold, 3);
-P_pattern = n_pattern / N_REALIZATIONS;
-CI_low = zeros(size(P_pattern));
-CI_high = zeros(size(P_pattern));
+ratio_result_files = cell(1, n_ratio);
 for r_idx = 1:n_ratio
-    for c_idx = 1:n_c
-        [CI_low(r_idx, c_idx), CI_high(r_idx, c_idx)] = wilsonInterval( ...
-            n_pattern(r_idx, c_idx), N_REALIZATIONS, Z_WILSON);
-    end
+    ratio_result_files{r_idx} = fullfile(results_dir, sprintf( ...
+        'attraction_probability_vs_c_r%s.mat', ratioFileTag(R_LIST(r_idx))));
 end
 
+run_mask = false(1, n_ratio);
+for requested_r = RUN_REQUESTED_R_LIST(:)'
+    [r_error, r_idx] = min(abs(R_LIST-requested_r));
+    if r_error > 1e-10
+        warning('本机请求 r=%.6g，但当前阈值数据中最近点为 r=%.6g。', ...
+            requested_r, R_LIST(r_idx));
+    end
+    run_mask(r_idx) = true;
+end
+
+timer_total = tic;
+pool = [];
+actual_workers = 0;
+n_jobs_run = 0;
+n_continuation_integrations = 0;
+
+% 以下数组用于汇总三个独立文件，并支持缺少某条 r 曲线时仍绘制已有结果。
+P_pattern = NaN(n_ratio, n_c);
+CI_low = NaN(n_ratio, n_c);
+CI_high = NaN(n_ratio, n_c);
 c50 = NaN(1, n_ratio);
+
 for r_idx = 1:n_ratio
-    c50(r_idx) = interpolateHalfProbability(C_LIST, P_pattern(r_idx, :));
-    if isnan(c50(r_idx))
-        fprintf('r=%.3f 的概率曲线未穿过 0.5，c50 未定义。\n', R_LIST(r_idx));
+    ratio_file = ratio_result_files{r_idx};
+    A_r = NaN(n_c, N_REALIZATIONS);
+    reference_state_r = [];
+    reference_A_r = NaN;
+    reference_steps_r = 0;
+    seed_sigma_r = NaN;
+    seed_source_r = '';
+    cache_valid = false;
+
+    % 读取当前 r 的独立缓存。FORCE_RERUN 只清空随机演化结果，
+    % 仍可复用缓存中的斑图参考态，避免不必要的延拓。
+    if exist(ratio_file, 'file')
+        cached = load(ratio_file);
+        cache_valid = isfield(cached, 'A_final_all') && ...
+            isequal(size(cached.A_final_all), [n_c, N_REALIZATIONS]) && ...
+            isfield(cached, 'r_value') && ...
+            abs(cached.r_value-R_LIST(r_idx)) <= 1e-10 && ...
+            isfield(cached, 'C_LIST') && isequal(cached.C_LIST(:), C_LIST(:)) && ...
+            isfield(cached, 'alpha') && abs(cached.alpha-alpha) <= 1e-10 && ...
+            isfield(cached, 'sigma_test') && ...
+            abs(cached.sigma_test-sigma_test(r_idx)) <= 1e-10;
+        if cache_valid
+            A_r = cached.A_final_all;
+        end
+        if cache_valid && isfield(cached, 'pattern_reference_state') && ...
+                numel(cached.pattern_reference_state) == 2*NK
+            reference_state_r = cached.pattern_reference_state(:);
+        end
+        if cache_valid && isfield(cached, 'reference_A_final')
+            reference_A_r = cached.reference_A_final;
+        end
     end
+
+    if FORCE_RERUN && run_mask(r_idx)
+        A_r(:) = NaN;
+    end
+
+    pending_linear = find(~isfinite(A_r(:)));
+    should_run = run_mask(r_idx) && ~isempty(pending_linear);
+    if should_run
+        % 只有确实需要补算当前 r 时，才准备斑图参考态。
+        if isempty(reference_state_r) || ~isfinite(reference_A_r) || ...
+                reference_A_r <= classification_threshold
+            [seed_state_r, seed_sigma_r, seed_source_r] = findPatternSeed( ...
+                results_dir, topology_type, N, K, topology_parameter, alpha, ...
+                alpha*R_LIST(r_idx), noise_intensity, sigma_test(r_idx), ...
+                L_intra, classification_threshold);
+            cfg_r = base_cfg;
+            cfg_r.beta = alpha * R_LIST(r_idx);
+            [reference_state_r, reference_A_r, reference_steps_r] = ...
+                buildPatternReference(cfg_r, seed_state_r, seed_sigma_r, ...
+                sigma_test(r_idx), classification_threshold, SEED_BASE, r_idx, ...
+                CONTINUATION_MAX_STEP, CONTINUATION_MIN_STEP);
+            n_continuation_integrations = n_continuation_integrations + reference_steps_r;
+        end
+        if reference_A_r <= classification_threshold
+            error('r=%.6g 的斑图参考态未通过 A_cut=%.6g。', ...
+                R_LIST(r_idx), classification_threshold);
+        end
+        if reference_A_r <= 5 * classification_threshold
+            warning('r=%.3f 的参考斑图振幅仅为 A_cut 的 %.2f 倍，请检查状态分离。', ...
+                R_LIST(r_idx), reference_A_r / classification_threshold);
+        end
+
+        if isempty(pool)
+            pool = startLocalPool(N_WORKERS_REQUESTED);
+            actual_workers = pool.NumWorkers;
+            fprintf('Requested workers: %d\nActual workers: %d\n', ...
+                N_WORKERS_REQUESTED, actual_workers);
+        end
+
+        pending_c = mod(pending_linear-1, n_c) + 1;
+        pending_realization = floor((pending_linear-1) / n_c) + 1;
+        pending_A = NaN(size(pending_linear));
+        x_P = reference_state_r;
+        r_value = R_LIST(r_idx);
+        sigma_value = sigma_test(r_idx);
+        parfor pending_id = 1:numel(pending_linear)
+            c_idx = pending_c(pending_id);
+            realization_idx = pending_realization(pending_id);
+            y0 = x_H + C_LIST(c_idx) * (x_P - x_H) + ...
+                epsilon_initial * zeta;
+            cfg = base_cfg;
+            cfg.beta = alpha * r_value;
+            cfg.sigma = sigma_value;
+            cfg.y0 = y0;
+            cfg.noise_seed = SEED_BASE + realization_idx;
+            cfg.detect_convergence = false;
+            [~, ~, cfg_out] = solve_multiplex(cfg);
+            pending_A(pending_id) = cfg_out.A_final;
+        end
+        A_r(pending_linear) = pending_A;
+        n_jobs_run = n_jobs_run + numel(pending_linear);
+    elseif ~cache_valid && ~run_mask(r_idx)
+        warning('缺少 r=%.6g 的独立结果文件：%s', R_LIST(r_idx), ratio_file);
+    end
+
+    % 当前 r 的概率统计。未完成的缓存不参与绘图，保留 NaN 等待后续补算。
+    complete_r = all(isfinite(A_r(:)));
+    n_pattern_r = NaN(1, n_c);
+    P_r = NaN(1, n_c);
+    CI_low_r = NaN(1, n_c);
+    CI_high_r = NaN(1, n_c);
+    c50_r = NaN;
+    if complete_r
+        n_pattern_r = sum(A_r > classification_threshold, 2)';
+        P_r = n_pattern_r / N_REALIZATIONS;
+        for c_idx = 1:n_c
+            [CI_low_r(c_idx), CI_high_r(c_idx)] = wilsonInterval( ...
+                n_pattern_r(c_idx), N_REALIZATIONS, Z_WILSON);
+        end
+        c50_r = interpolateHalfProbability(C_LIST, P_r);
+        if isnan(c50_r)
+            fprintf('r=%.3f 的概率曲线未穿过 0.5，c50 未定义。\n', R_LIST(r_idx));
+        end
+    else
+        n_completed_r = sum(isfinite(A_r(:)));
+        fprintf('r=%.3f 当前完成 %d/%d 个随机演化，等待后续补算。\n', ...
+            R_LIST(r_idx), n_completed_r, n_c*N_REALIZATIONS);
+    end
+
+    % 只保存当前 r 的绘图数据，以及续算缺失 realization 所需的原始终态和参考态。
+    if should_run
+        ratio_cache = struct();
+        ratio_cache.r_value = R_LIST(r_idx);
+        ratio_cache.C_LIST = C_LIST;
+        ratio_cache.N_REALIZATIONS = N_REALIZATIONS;
+        ratio_cache.alpha = alpha;
+        ratio_cache.sigma_test = sigma_test(r_idx);
+        ratio_cache.A_final_all = A_r;
+        ratio_cache.P_pattern = P_r;
+        ratio_cache.CI_low = CI_low_r;
+        ratio_cache.CI_high = CI_high_r;
+        ratio_cache.c50 = c50_r;
+        ratio_cache.pattern_reference_state = reference_state_r;
+        ratio_cache.reference_A_final = reference_A_r;
+        save(ratio_file, '-struct', 'ratio_cache', '-v7');
+    end
+
+    P_pattern(r_idx, :) = P_r;
+    CI_low(r_idx, :) = CI_low_r;
+    CI_high(r_idx, :) = CI_high_r;
+    c50(r_idx) = c50_r;
 end
+if actual_workers == 0
+    fprintf('本次没有需要补算的随机演化，未启动并行池。\n');
+end
+total_wall_time = toc(timer_total);
+n_total_simulations = n_jobs_run + n_continuation_integrations;
 
 %% 6. 绘制经验吸引概率曲线
 curve_colors = lines(n_ratio);
@@ -268,7 +356,11 @@ main_figure = figure('Visible', 'off', 'Color', 'w', ...
     'Units', 'pixels', 'Position', [100 100 900 620]);
 main_axes = axes(main_figure);
 hold(main_axes, 'on');
+has_curve = false;
 for r_idx = 1:n_ratio
+    if any(~isfinite(P_pattern(r_idx, :)))
+        continue;
+    end
     lower_error = P_pattern(r_idx, :) - CI_low(r_idx, :);
     upper_error = CI_high(r_idx, :) - P_pattern(r_idx, :);
     errorbar(main_axes, C_LIST, P_pattern(r_idx, :), lower_error, upper_error, ...
@@ -276,78 +368,28 @@ for r_idx = 1:n_ratio
         'MarkerFaceColor', curve_colors(r_idx, :), 'MarkerSize', 5, ...
         'LineWidth', 1.5, 'CapSize', 5, ...
         'DisplayName', sprintf('r = %.3g', R_LIST(r_idx)));
+    has_curve = true;
 end
 yline(main_axes, 0.5, '--', 'Color', [0.55 0.55 0.55], ...
     'HandleVisibility', 'off');
 xlim(main_axes, [0 1]);
 ylim(main_axes, [0 1]);
-xlabel(main_axes, 'Initial pattern fraction c');
+xlabel(main_axes, 'Initial-condition interpolation parameter c');
 ylabel(main_axes, 'Probability of patterned final state');
 title(main_axes, 'Empirical attraction probability along a representative direction');
 if ~isempty(matched_midpoint_note)
     subtitle(main_axes, matched_midpoint_note, 'Interpreter', 'none');
 end
-legend(main_axes, 'Location', 'best');
+if has_curve
+    legend(main_axes, 'Location', 'best');
+end
 grid(main_axes, 'on');
 box(main_axes, 'on');
 main_image = fullfile(fig_dir, 'attraction_probability_vs_c.png');
 exportgraphics(main_figure, main_image, 'Resolution', 300);
 close(main_figure);
 
-c50_image = '';
-if all(isfinite(c50))
-    c50_figure = figure('Visible', 'off', 'Color', 'w', ...
-        'Units', 'pixels', 'Position', [120 120 720 520]);
-    plot(R_LIST, c50, '-o', 'LineWidth', 1.7, 'MarkerSize', 7, ...
-        'MarkerFaceColor', [0.20 0.48 0.78]);
-    xlabel('Inter-layer coupling ratio r = beta / alpha');
-    ylabel('c_{50}');
-    title('Empirical half-probability point');
-    xlim([min(R_LIST) max(R_LIST)]);
-    ylim([0 1]);
-    grid on; box on;
-    c50_image = fullfile(fig_dir, 'c50_vs_coupling.png');
-    exportgraphics(c50_figure, c50_image, 'Resolution', 300);
-    close(c50_figure);
-end
-
-%% 7. 保存 MAT、CSV 和运行摘要
-row_count = n_ratio * n_c;
-[csv_ratio_grid, csv_c_grid] = ndgrid(1:n_ratio, 1:n_c);
-csv_ratio_idx = csv_ratio_grid(:);
-csv_c_idx = csv_c_grid(:);
-csv_r = reshape(R_LIST(csv_ratio_idx), [], 1);
-csv_c = reshape(C_LIST(csv_c_idx), [], 1);
-csv_sigma = reshape(sigma_test(csv_ratio_idx), [], 1);
-csv_table = table(csv_r, csv_c, csv_sigma, n_pattern(:), ...
-    repmat(N_REALIZATIONS, row_count, 1), P_pattern(:), CI_low(:), CI_high(:), ...
-    'VariableNames', {'r', 'c', 'sigma', 'n_pattern', 'n_total', ...
-    'P_pattern', 'CI_low', 'CI_high'});
-csv_file = fullfile(results_dir, 'attraction_probability_vs_c.csv');
-writetable(csv_table, csv_file);
-
-simulation_parameters = struct( ...
-    'topology_type', topology_type, 'topology_parameter', topology_parameter, ...
-    'network_file', topology_file, 'alpha', alpha, 'noise_intensity', noise_intensity, ...
-    'N', N, 'K', K, 'dt', dt, 'T_END', T_END, 'steps_saved', base_cfg.steps, ...
-    'figure2_steps_setting', figure2_steps, 'init_perturb', init_perturb, ...
-    'order_parameter_definition', ...
-    'sqrt(sum((u-5).^2+(v-10).^2)/(N*K)), final 20 percent time-step mean', ...
-    'noise_definition', ...
-    'solve_multiplex.m edge-wise independent increments; same edge increment shared by u/v');
-mat_file = fullfile(results_dir, 'attraction_probability_vs_c.mat');
-save(mat_file, 'requested_R_LIST', 'R_LIST', 'C_LIST', 'N_REALIZATIONS', ...
-    'sigma_b', 'sigma_f', 'sigma_test', 'sigma_selection_mode', ...
-    'sigma_common_low', 'sigma_common_high', 'P_pattern', 'CI_low', 'CI_high', ...
-    'n_pattern', 'c50', 'A_final_all', 'classification_threshold', ...
-    'epsilon_initial', 'zeta', 'x_H', 'pattern_reference_states', ...
-    'reference_A_final', 'reference_continuation_steps', 'reference_source', ...
-    'pattern_seed_sigma', 'pattern_seed_source', 'SEED_BASE', 'job_seed', ...
-    'simulation_parameters', 'threshold_file', 'topology_file', ...
-    'N_WORKERS_REQUESTED', 'actual_workers', 'n_jobs', ...
-    'n_continuation_integrations', 'n_total_simulations', 'total_wall_time', ...
-    'matched_midpoint_note', 'main_image', 'csv_file', 'c50_image', '-v7');
-
+%% 7. 输出运行摘要
 fprintf('\n=== Attraction probability analysis complete ===\n');
 fprintf('Figure 2 parameters: alpha=%.6g, eta=%.6g, N=%d, K=%d\n', ...
     alpha, noise_intensity, N, K);
@@ -362,9 +404,7 @@ for r_idx = 1:n_ratio
     else
         fprintf('未定义（曲线未穿过 0.5）\n');
     end
-    fprintf('  斑图参考态：A_final=%.6g，延拓积分次数=%d\n  种子文件：%s\n', ...
-        reference_A_final(r_idx), reference_continuation_steps(r_idx), ...
-        reference_source{r_idx});
+    fprintf('  独立结果文件：%s\n', ratio_result_files{r_idx});
 end
 if strcmp(sigma_selection_mode, 'common hysteresis intersection')
     fprintf('Sigma selection: common hysteresis value %.8g\n', sigma_test(1));
@@ -375,12 +415,9 @@ end
 fprintf('Requested workers: %d; actual workers: %d\n', ...
     N_WORKERS_REQUESTED, actual_workers);
 fprintf(['Total simulations: %d (Monte Carlo: %d; continuation integrations: %d); ' ...
-    'elapsed: %.2f s\n'], n_total_simulations, n_jobs, ...
+    'elapsed: %.2f s\n'], n_total_simulations, n_jobs_run, ...
     n_continuation_integrations, total_wall_time);
-fprintf('MAT: %s\nCSV: %s\nFigure: %s\n', mat_file, csv_file, main_image);
-if ~isempty(c50_image)
-    fprintf('c50 figure: %s\n', c50_image);
-end
+fprintf('Figure: %s\n', main_image);
 
 %% 本地辅助函数
 function value = readNumericAssignment(source_text, variable_name)
@@ -401,6 +438,13 @@ if isempty(token)
     error('无法从当前 MATLAB 源文件中读取文本参数：%s', variable_name);
 end
 value = token{1};
+end
+
+function tag = ratioFileTag(ratio)
+% 将 beta/alpha 转为稳定的文件名片段，例如 4.5 -> 4p5。
+tag = sprintf('%.10g', ratio);
+tag = strrep(tag, '-', 'm');
+tag = strrep(tag, '.', 'p');
 end
 
 function pool = startLocalPool(requested_workers)
@@ -432,8 +476,8 @@ error('无法启动本地并行池。最后一次错误：%s', last_error);
 end
 
 function [seed_state, seed_sigma, seed_path] = findPatternSeed(results_dir, ...
-        topology_type, N, K, topology_parameter, alpha, beta, noise_intensity, ...
-        sigma_target, L_intra, A_cut)
+    topology_type, N, K, topology_parameter, alpha, beta, noise_intensity, ...
+    sigma_target, L_intra, A_cut)
 pattern = ['^evolution_' lower(topology_type) '_N(\d+)_K(\d+)_p([0-9.]+)' ...
     '_a([0-9.]+)_b([0-9.]+)_s([0-9.]+)_n([0-9.]+)_(fwd|bwd)_results\.mat$'];
 files = dir(fullfile(results_dir, sprintf('evolution_%s_N%d_K%d_p*_results.mat', ...
@@ -511,8 +555,8 @@ is_same = true;
 end
 
 function [x_pattern, A_reference, n_integrations] = buildPatternReference( ...
-        base_cfg, initial_seed, seed_sigma, sigma_target, A_cut, seed_base, ...
-        ratio_index, max_step, min_step)
+    base_cfg, initial_seed, seed_sigma, sigma_target, A_cut, seed_base, ...
+    ratio_index, max_step, min_step)
 n_integrations = 0;
 sigma_current = seed_sigma;
 y_current = initial_seed(:);

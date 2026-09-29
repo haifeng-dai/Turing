@@ -197,8 +197,10 @@ Once again, we deeply appreciate your support and assistance in enhancing our wo
 \noindent \underline {\textbf{Response:}}
 \bigskip
 
-We sincerely thank
-% 感谢审稿人的认可
+% 我们衷心感谢审稿人认可了探讨多重网络（multiplex）拓扑结构与状态依赖型乘性噪声在图灵斑图形成过程中的相互作用这一课题的重要性，同时也肯定了论文表述的清晰度，对此我们深表感谢。
+% 审稿人提出的具体意见和建议极具建设性，帮助我们重新思考并进一步明确了研究动机、理论意义及主要贡献。
+% 我们在修改稿中认真回应了每一条意见，具体细节请见下文的逐点回复。
+We sincerely thank the reviewer for the positive assessment of our work and for the careful summary of its main contributions. We greatly appreciate the reviewer’s recognition of the significance of investigating the interplay between multiplex topology and state-dependent multiplicative noise in Turing pattern formation, as well as the clarity of the manuscript. The specific comments and suggestions provided by the reviewer are highly constructive and have helped us further clarify the motivation, theoretical implications, and main contributions of this work. We have carefully addressed each comment in the revised manuscript, as detailed in our point-by-point responses below.
 
 \leftskip 2em
 \rightskip 2em
@@ -224,16 +226,23 @@ We sincerely thank
 \bigskip
 
 We sincerely thank the reviewer for this highly constructive feedback, and completely agree with the reviewer's insightful suggestion to conduct more extensive experiments on IoT datasets.
+% 很感谢审稿人直接指出我们文章的动机较为模糊，极大地降低了读者对本文必要性和创新性的评估。
+% 本文的出发点基于以下两个方面：1. 不同文献汇报噪声和层间耦合对Turing形成是不同的，比如文献[37]本身就汇报了层间耦合对不同参数下的系统的影响相反。同样的，噪声的具体影响也存在不同。无法直接地从已有文献中推定层间耦合与噪声对系统影响的定性分析。2. 目前的研究几乎都是在特定参数下研究系统的动力学行为，缺乏统一的框架将参数、拓扑、噪声等多种因素的协同影响进行定性分析。
+% 为了明确地在文中点出上述动机，我们修改了引言的最后一段{XXX}，具体如下：
 
 \leftskip 2em
 \rightskip 2em
 \medskip
 
-``To ''
+``To
+% XXX
+''
 
 \leftskip 0em
 \rightskip 0em
 \medskip
+
+% 另外，我们对定理结果的分析也明确说明了拓扑和噪声的影响是耦合的，并不能从单一的因素的影响简单叠加得到。
 
 \newpage
 \begin{tcolorbox}[title = {Comment 2},fonttitle = \bfseries]
@@ -248,6 +257,20 @@ We sincerely thank the reviewer for this highly constructive feedback, and compl
 \bigskip
 
 We sincerely
+% 审稿人明确地指出了一篇与我们的工作极其相关的文献，与其进行对比确实能够更进一步地总结我们发现的新颖性。
+% 对此，我们深表感谢。
+% 总的来说，文献 [37] 做的工作较为简单，我们考虑得相对更加全面。
+% 我们的工作与[37]的主要差别如下：
+% 1. 模型：我们所建模的多重网络和[37]基于相同的多重网络理论，但是[37]仅仅针对两层网络做了细致地分析，对于更多层的多重网络仅声称支持，但是并未讨论。
+% 而我们使用了5层，更多层数的情况在图X中也做了研究。
+% 另外，我们的模型额外研究了乘性噪声的存在。
+% 2. 理论：[37]延续了XX的工作[]和[]，使用扰动理论进行对多重网络进行谱分析。
+% 我们提出了一个统一的理论框架，能将动力学、层间耦合的协同影响进行定性分析。
+% 3. 结果：[37]在仿真中指出了多重网络在不同参数的Brusselator模型上能表现出完全不同的影响，可能是促进的，也可能是抑制的。
+% 由于我们不依赖于扰动理论[xx]，我们不将层间耦合强度限制在较小范围，因而发现了更加丰富的动力学现象，即层间耦合影响的非单调性和饱和现象。
+
+% 我们并未对上出差异在正文中进行详尽的对比，而是仅对层间耦合对Turing形成的影响进行了叙述。
+% 具体地，我们在4.2节加入了以下文字：
 
 \newpage
 \begin{tcolorbox}[title = {Comment 3},fonttitle = \bfseries]
@@ -275,6 +298,11 @@ We sincerely
 \bigskip
 
 We sincerely
+% 很感谢审稿人关于明确总结主要贡献的建议。
+% 该总结不但有助于评审，也有助于读者快速定位本文的主要内容、创新点以及与其他文献的差异。
+% 本文的贡献主要包括四方面：1. 提出了带有噪声的多重网络话激活异质系统模型；2. 利用稳定性分析给出了温度的充分条件，并定性分析了拓扑、噪声、动力学相关参数。3. 仿真揭示了层间耦合的非单调影响；4. 特别地，汇报了 BA 网络尺度不变性。
+%
+% 具体地，我们在引言中加入了以下文本：
 
 \newpage
 \begin{tcolorbox}[title = {Comment 5},fonttitle = \bfseries]
@@ -288,6 +316,11 @@ We sincerely
 \bigskip
 
 We sincerely
+% 非常感谢审稿人对理论结果的认可，也感谢指出对它分析的不充分。
+% 定理1证明了系统的随机稳定性，而定理2证明系统的平衡解为系统的uniform stationary state，二者共同得出了系统的稳定性分析结果。
+% gamma 是系统稳定的关键判据，我们将 gamma 重写为：-l + \alpha \lambda_2 \sigma_{\min} - \eta^2 \alpha^2 (\lambda_2^2 \sigma_{\min}^2 - \frac12 \lambda_{NK}^2 \sigma_{\max}^2)。
+% 其中 l 代表了节点动力学对稳定性影响，\alpha 则代表了扩散作用的影响，噪声的影响由 \eta 控制，拓扑的影响在 \lambda_2 和 \lambda_{NK} 中综合体现。
+% 尤其从第三项中可以看出，噪声、拓扑结构、层间耦合的影响是高度耦合的，它们共同影响了系统的稳定性，也从侧面体现了带有乘性噪声的网络化激活抑制系统的行为无法从确定性多重网络和单层网络中直接推演得出。
 
 \newpage
 \section*{Response to Reviewer 2}
@@ -312,7 +345,11 @@ Once again, we deeply appreciate your support and assistance in enhancing our wo
 \bigskip
 
 We sincerely thank
-% 感谢审稿人的认可
+% 感谢审稿人对我们工作的认可，以及您的时间和宝贵意见。
+% 针对您提出的细节不清和指标不合适等问题，我们已经进行了修正。
+% 对于您建议用谱分析方法解释我们结果的观点，我们增加了相关解析。
+% 具体内容见下文的逐点回复。
+% 您的建议极大地提升了我们论文的准确性和结果的可解释性，再次表示感谢。
 
 \leftskip 2em
 \rightskip 2em
@@ -339,6 +376,19 @@ We sincerely thank
 \bigskip
 
 We sincerely thank the reviewer for this highly constructive feedback, and completely agree with the reviewer's insightful suggestion to conduct more extensive experiments on IoT datasets.
+% 感谢审稿人指出我们对多重网络的说明并不够清晰，对于不具备相关背景的读者来说，可能造成困惑。
+% 我们也感谢您关于增加示意图的建议，这能够更加直接地说明我们所考虑的多重网络。
+% 区别于多层网络，我们采用了经典的多重网络模型，其中每个层内的节点是同一节点的副本，每一层的网络都是独立生成的，彼此不相关。
+% 层间连接可以为任意连通图，但并不要求是完全图。
+% 特别地，在本文中，所有的边都认为是无向图。
+% 在图1-4中，我们使用了5层网络，且每层是独立生成的ER网络。
+% 且为了公平性比较，层间拓扑我们确实是用了完全图，但这并不是必须的，我在非完全图中也可以进行试验。
+% 根据您在 comment 4 中的建议，我们采取了度为 2 的层间网络以避免完全图带来的额外耦合强度的影响。
+
+% 在正文中，我们增加了图1以阐明我们使用的多重网络，并在图注中进行了详细说明。
+% 我们也在仿真部分对每个图中使用的网络、参数等进行了进一步说明。
+
+% XXXX
 
 \leftskip 2em
 \rightskip 2em
@@ -415,6 +465,13 @@ We sincerely
 \bigskip
 
 We sincerely
+% 感谢审稿人的意见，让我们可以更深入地探究这个不连续转折点背后的根因。
+% 之所以没有将谱分析方法引入本文的一个重要原因是本文考虑了随机系统，但是从图x中可以看到，当噪声强度较小时，系统的动力学行为与确定性系统近似，这允许我们从确定性多重网络下的激活抑制系统的谱分析获取一定的见解。
+% 根据审稿人的建议，我们添加了确定性系统的谱分析，它很大程度上能够解释图x中的现象。
+% 我们的结果表明，图x中的现象主要来源于该转折点出主模态的切换，且切换后模态对层间耦合强度并不敏感。
+% 且对归一化特征向量的分析表明，在新模态下，主导Turing在在局部节点处
+
+% 针对以上修改，我们在正文中添加了一下文字。
 
 \newpage
 \begin{tcolorbox}[title = {Comment 4 Normalization of the order parameter},fonttitle = \bfseries]
@@ -436,6 +493,20 @@ We sincerely
 \bigskip
 
 We sincerely
+% 感谢审稿人指出序参量具体数值在对比时需要进行归一化的问题，以及层间耦合强度实际不一致的问题。
+% 我们在最开始的时候简单地使用了目前研究常用的经典方式，即XXX。
+% 在描述序参量赋值的时候却忽略了其本身未归一化的问题。
+% 我们按照审稿人的建议修改了序参量的形式，使其更适配我们的表述。
+% 结果表明，图4中幅度增加的现象依旧成立，但是在图5和图6中并不能观察到足够明显的差异。
+% 针对该问题，我们修正了论文中的表述。
+
+% 对于你提到的增加层数会增大总耦合强度的问题，我们认可这个现实差异差异。
+% 但是是否需要对 \beta 进行归一化属于模型设计逻辑问题，我们在这里进行粗略讨论。
+% 直观地，在单层网络中，如果一个节点与更多邻居连接，它将收到更多的邻居影响。
+% 类似的，一个节点如果拥有较多的层间连接，我们也预期它会受到更多来自跨层节点的影响。
+% 因此，我们并未修改 \beta 的归一化。
+% 但是，我们确实意识到使用这样的对比是并不公平的，因而，我们在图6中使用了度为2的层间拓扑。
+% 相应的结果和图已经更新。
 
 \newpage
 \begin{tcolorbox}[title = {Comment 5 Turing instability, hysteresis and multistability},fonttitle = \bfseries]
@@ -481,14 +552,6 @@ We sincerely
 \section*{Response to Reviewer 3}
 \parindent 2em
 
-We sincerely thank the reviewer for the meticulous review of our manuscript and the valuable feedback provided.
-We have taken each comment into consideration and implemented corresponding revisions in the latest manuscript.
-In particular, your numerous constructive suggestions regarding the applicability of FedPLN in IoT scenarios have significantly enhanced the alignment of our work with the scope and standards of the IEEE Internet of Things Journal.
-We believe that with these revisions, the quality and completeness of our manuscript have been substantially improved.
-
-Should you have any further questions or suggestions regarding our responses or modifications, we would be happy to continue the discussion and make additional improvements.
-Once again, we deeply appreciate your support and assistance in enhancing our work.
-
 \begin{tcolorbox}[title = {General Comment},fonttitle = \bfseries]
     The manuscript addresses the interplay between multiplex network topology and multiplicative noise in activator–inhibitor systems, which is a meaningful direction beyond existing single-layer and additive-noise studies, but in its current form it requires substantial revision before the claimed contributions can be supported.
     \zhtranslationfirst{本文研究了激活因子—抑制因子系统中多重网络拓扑与乘性噪声之间的相互作用，相较于现有的单层网络和加性噪声研究，这是一个有意义的拓展方向；但以稿件目前的形式，还需要进行大幅修改，才能充分支撑其所声称的贡献。}
@@ -498,7 +561,11 @@ Once again, we deeply appreciate your support and assistance in enhancing our wo
 \bigskip
 
 We sincerely thank
-% 感谢审稿人的认可
+% 感谢审稿人对我们工作的认可，以及您在本手稿上的工作。
+% 您关于噪声在理论上的过度且无理由简化、理论与仿真之间的缺口、结果的可靠性与可解释性方面提出的意见准确地指出了我们手稿的不足。
+% 这些意见有效地提高了本文结果的可靠性。
+% 针对这些意见，我们进行了逐一修改和回复。
+% 希望这些修改能够满足你的要求。
 
 \leftskip 2em
 \rightskip 2em
@@ -520,7 +587,14 @@ We sincerely thank
 \noindent \underline {\textbf{Response:}}
 \bigskip
 
-We sincerely thank the reviewer for this highly constructive feedback, and completely agree with the reviewer's insightful suggestion to conduct more extensive experiments on IoT datasets.
+We
+% 感谢您指出本文将公共噪声简化独立噪声的理论依据缺乏这一缺陷。
+% 这一简化是因为我们延续了[x-x]工作，对噪声进行了简化。
+% 在理论推导中，这一简化将极大地降低推导过程的复杂性。
+% 结果重新思考后来发现，即使使用原始的独立噪声也能得到相似结论，且旧的定理也成为新定理了一个特例。
+
+% 我们在修改后的手稿中在独立噪声的情况下重新进行了理论分析，且所有的仿真都在独立噪声下重新运行。
+% 对比修改前后的结果表明，独立噪声和全局噪声有一定的区别。如下：
 
 \leftskip 2em
 \rightskip 2em
@@ -543,6 +617,10 @@ We sincerely thank the reviewer for this highly constructive feedback, and compl
 \bigskip
 
 We sincerely
+% 感谢审稿人指出理论分析和数值仿真部分之间缺乏适当的过度，导致论文有些许割裂。
+% Turing和同步是吸引-抑制系统的两个独立现象，是对系统x进行完整分析的两个重要部分。
+% 理论分析给出了同步到均匀状态的充分条件：\gamma > 0，而当 \gamma < 0 的时候，系统可能会失去稳定性的保障，并且表现出更加丰富的行为。
+% 为了充分说明这个情况，我们在正文中增加了一下文本：
 
 \newpage
 \begin{tcolorbox}[title = {Comment 3},fonttitle = \bfseries]

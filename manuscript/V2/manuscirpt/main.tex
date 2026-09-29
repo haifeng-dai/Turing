@@ -138,14 +138,25 @@ While much research in the recent literature focuses on additive noise, which op
 In these scenarios, the noise intensity is coupled to the system's states, a characteristic that can induce qualitatively different dynamics compared to additive noise.
 Addressing this, it is demonstrated in \cite{Xiao2023} that multiplicative noise can decrease critical thresholds and maintain the stability of the system, where the noise intensity is proportional to the deviation from a uniform stationary state.
 
-Despite these advances, the study of Turing patterns in general multiplex networks remains relatively underexplored, with the effects of multiplicative noise being largely overlooked.
-This paper aims to bridge this gap by investigating the Turing instability of multiplex-networked activator-inhibitor systems under the influence of multiplicative noise.
-In this paper, we first formulate a multiplex-networked stochastic activator-inhibitor system where state-dependent multiplicative noise is specifically incorporated into both intra-layer and inter-layer diffusion processes.
-Differing from other previous approaches \cite{Xiao2023}, we assume that the noise directly perturbs the diffusion dynamics, with its intensity being proportional to the density differences between neighboring nodes.
-Based on this framework, we utilize the stability theory of stochastic differential equations to derive a sufficient condition for the almost sure asymptotic stability of the multiplex system.
-Our numerical simulations based on the Mimura-Murray model reveal that multiplicative noise fundamentally reshapes the system's phase transitions.
-Specifically, we find that increased noise intensity facilitates pattern onset by lowering both the forward and backward thresholds, ultimately leading to the collapse of the subcritical hysteresis loop.
-Furthermore, by exploring the macroscopic network properties, we uncover a unique scale-invariant robustness property in BA networks \cite{Barabasi1999}, where the onset of Turing instability is governed by structural heterogeneity rather than the network scale, a behavior that contrasts sharply with the pronounced scale sensitivity observed from ER \cite{Erdos1960} and WS networks \cite{Watts1998}.
+% Despite these advances, the study of Turing patterns in general multiplex networks remains relatively underexplored, with the effects of multiplicative noise being largely overlooked.
+% This paper aims to bridge this gap by investigating the Turing instability of multiplex-networked activator-inhibitor systems under the influence of multiplicative noise.
+% In this paper, we first formulate a multiplex-networked stochastic activator-inhibitor system where state-dependent multiplicative noise is specifically incorporated into both intra-layer and inter-layer diffusion processes.
+% Differing from other previous approaches \cite{Xiao2023}, we assume that the noise directly perturbs the diffusion dynamics, with its intensity being proportional to the density differences between neighboring nodes.
+% Based on this framework, we utilize the stability theory of stochastic differential equations to derive a sufficient condition for the almost sure asymptotic stability of the multiplex system.
+% Our numerical simulations based on the Mimura-Murray model reveal that multiplicative noise fundamentally reshapes the system's phase transitions.
+% Specifically, we find that increased noise intensity facilitates pattern onset by lowering both the forward and backward thresholds, ultimately leading to the collapse of the subcritical hysteresis loop.
+% Furthermore, by exploring the macroscopic network properties, we uncover a unique scale-invariant robustness property in BA networks \cite{Barabasi1999}, where the onset of Turing instability is governed by structural heterogeneity rather than the network scale, a behavior that contrasts sharply with the pronounced scale sensitivity observed from ER \cite{Erdos1960} and WS networks \cite{Watts1998}.
+
+% 既往研究揭示了Turing形成背后的两种重要机制，但它们被独立研究，但是对于一般多层网络中的Turing形成，它们的协同影响尚未得到充分的研究。
+% 多重耦合重构了系统的动力学模式，能够对不同参数的系统表现出完全不同的影响，同样地，乘性噪声对Turing的影响也并不明朗。
+% 直接从二者的独立研究中无法简单地推断出带有乘性噪声的多重网络化激活异质系统的动力学行为。
+% 另一方面，以往的研究仅在特定设定下分析系统的动力学行为，缺乏一个统一的方法对拓扑、参数、噪声等多种参数的协同影响进行定性分析。
+% 针对上述问题，我们首先构建了带有乘性噪声的多重网络化激活异质系统，并借用随机微分方程稳定性理论对拓扑、动力学、噪声等多种参数的协同影响进行定性分析。
+% 具体来说，本文的主要贡献如下：
+% 1. 我们基于多重网络理论构建了多重网络化激活异质系统，并将状态差依赖的噪声同时引入了层内与层间的扩散过程。
+% 2. 随后，基于Lyapunov随机稳定性理论，推导出多重网络几乎处处渐近稳定的充分条件，从而为系统的稳定性定性分析提供了理论依据。
+% 3. 基于Mimura-Murray模型的实验揭示了层间耦合对稳定性和Turing形成的影响的非单调性。并且发现乘性噪声能够降低正向和反向相变阈值，从而促进Turing的形成。
+% 4. 特别的，我们发现了相变阈值在BA网络中表现出的一种独特的尺度不变性，与WS和ER网络的尺度敏感性形成了鲜明的对比。
 
 The remainder of this paper is organized as follows.
 \cref{multiplex} formulates the deterministic and stochastic multiplex-networked activator-inhibitor systems.
@@ -361,9 +372,19 @@ To address this, the following theorem demonstrates how the full stochastic syst
 	Since the stochastic system \eqref{noise_compact} approaches the isolated system \eqref{isolated} while the average state $\bar{x}$ simultaneously approaches $x^\ast$, their combined effect ensures that the stochastic system \eqref{noise_compact} ultimately synchronizes to the uniform stationary state $x^\ast$.
 }
 
+% 我们将 \gamma 重写为：
+\begin{equation}\label{gamma}
+	\gamma = -l + \alpha \lambda_2 \sigma_{\min} - \eta^2 \alpha^2 \left(\lambda_2^2 \sigma_{\min}^2 - \frac12 \lambda_{NK}^2 \sigma_{\max}^2\right).
+\end{equation}
+% l 代表了节点自身动力学对稳定性的影响，\alpha 则代表了扩散作用的影响，而 \eta 则代表了噪声的影响，拓扑的影响则由 \lambda_2 和 \lambda_{NK} 控制。
+% 可以看到，尤其是在 \cref{gamma} 的第三项中，拓扑结构和噪声的影响是高度耦合的，而层间耦合强度也在 \lambda_2 和 \lambda_{NK} 中间接体现。
+% 定理1和2充分地反映出噪声、拓扑和扩散等因素对系统稳定性影响的高度耦合性和复杂性。
+
 Notably, \cref{t2} establishes a sufficient rather than necessary condition for the synchronization of the stochastic system \eqref{noise_compact} to the uniform stationary state $x^\ast$.
 While the specific criterion $\gamma > 0$ is highly conservative and generally difficult to satisfy in practice, this analytical stringency does not diminish its theoretical utility.
 Despite such strictness, the present work establishes a conceptually efficient framework for investigating the Turing instability of networked stochastic activator-inhibitor systems.
+
+% 定理x给出了
 
 \section{Turing instability}\label{simulation}
 
@@ -380,9 +401,12 @@ The following order parameter is used to quantify the degree of synchronization:
 \begin{equation}
 	A(\sigma) = \left\{ \sum_{i=1}^N \sum_{k=1}^K \left[ (u_{i}^{(k)} - u^\ast)^2 + (v_{i}^{(k)} - v^\ast)^2 \right] \right\}^{1/2}.
 \end{equation}
+% 在仿真实验中，若未指定，我们使用以参数作为默认设置。
 In simulation, the ER random network \cite{Erdos1960} is adopted as the intra-layer topology with the network size $N=200$ and the connection probability $p=0.03$, and a complete graph governs the inter-layer topology.
+% 默认地，我们使用层数为 5 的多重网络。
 The diffusion coefficient is fixed at $\alpha = 0.05$.
 Rather than being assigned an independent value, the inter-layer coupling strength is proportionally defined as $\beta = 0.1 \alpha$.
+% 噪声强度被设置为 $\eta = 0.1$。
 To simulate the forward transition, the initial node states are configured as small random perturbations around the uniform stationary state.
 Conversely, for the backward transition, the system is initialized using the final asymptotic states of a trajectory generated at $\sigma = 100$, which is an intensity sufficiently high to guarantee the robust existence of Turing patterns.
 
@@ -446,6 +470,22 @@ However, as the inter-layer coupling becomes dominant ($\beta/\alpha = 1.0$ or $
 While the backward threshold $\sigma_c^b$ remains relatively stable, the forward threshold $\sigma_c^f$ exhibits a prominent peak around $\alpha \approx 0.06$, leading to a significantly expanded bistable region.
 The results shown in Figs. 2(d)-(f) clearly demonstrate that the presence of inter-layer coupling fundamentally alters the influence of diffusion on the Turing instability, creating a unique complexity that is absent in single-layer networks.
 
+% 相比对 [37] 仅在2层网络上进行了仿真，我们在更一般地多层网络上进行，即K=5.
+% 得益于稳定性理论，我们不必像扰动理论那样，将层间耦合强度局限在较小的范围内。
+% [37] 汇报了通过在不同的动力学参数下，层间耦合的影响会截然不同。
+% 在更大耦合强度的范围中发现，层间耦合对Turing形成的影响并不是单调的，会存在一个饱和现象或峰值现象，见图X。
+% 并且，图x也说明层间耦合的影响也很大程度上依赖于层内的扩散强度。
+
+% 为了进一步阐明正向Turing转变的内在机制，我们对超lapacian进行模态分析。
+% 令 L\phi_1 = \lambda_q \phi_q，其中 \lambda_q 和 \phi_q 代表了特征值和特征向量。
+% 随后对于每个模态，可以得到：M_q = J - \lambda_q D，D = \text{diag}，其最大增长速度记为 \mu_q = \max \text{Re}[\text{eig}(M_1)]。
+% 因而，主模态 q^\ast = \mathop{\arg\max_{q>1}} \mu_q，\lambda_{\ast} = \lambda_{q^\ast}。
+% 从图x中可以看到，图3c中出现明显的转折点的因为主模态在\beta/\alpha=xx和xx处主模态发生了明显地变化，在小于xx和大于xx的时候，主模态对层间耦合强度并不敏感。
+% 另外，在图x中可以看出，当\beta/\alpha=4.5？时，归一化特征向量在各层间呈现高度一致的分布形态，但最大幅值仅集中在极少数节点索引处，表明该临界模态在层间近乎同步，但在节点上呈现局域化特征。
+% 注意该分析仅适用于向前阈值的分析，而反向阈值无法由模态分析解释。
+% 另外，本分析主要适用于无噪声与噪声较小时的情况，因为如图3c所示，系统的动力学行为在噪声较小时与无噪声的确定性多重网络系统相近。
+% 尽管如此，图x在很大程度上已经能够解释图x中的现象。
+
 \subsection{Impact of intra-layer network topology}
 
 \begin{figure}[!tb]
@@ -487,7 +527,7 @@ These results underscore that the intra-layer topology is a pivotal determinant 
 In the following, we investigate the influence of the network size $N$ on the hysteresis behavior as shwon in \cref{fig:size_impact}.
 For the ER and WS networks (Figs. 4(a-b)), increasing $N$ from 100 to 1000 causes the forward critical threshold $\sigma_c^f$ to decrease, with the ER network exhibiting a more pronounced shift than the WS network.
 In contrast, the forward threshold of the BA network (\cref{fig:size_impact}(c)) is remarkably insensitive to the system size and remains virtually constant. Despite these differences in the forward onset, the backward critical point $\sigma_c^b$ for all three topologies remains largely unaffected by $N$.
-Furthermore, as the network scale expands, the order parameter $A$ is consistently enhanced, leading to a higher amplitude of the resulting Turing patterns across all network types.
+% Furthermore, as the network scale expands, the order parameter $A$ is consistently enhanced, leading to a higher amplitude of the resulting Turing patterns across all network types. # 应当删除
 
 \subsection{Impact of number of layers}
 
@@ -504,13 +544,14 @@ Furthermore, as the network scale expands, the order parameter $A$ is consistent
 \end{figure}
 
 The influence of the number of layers $K$ on the hysteresis behavior is presented in \cref{fig:layer_impact}.
+% 其中不同层间拓扑的度始终保持为2以避免层间连接数量的不同引起的层间耦合总强度的变化。
 For both the ER and WS networks (Figs. 5(a-b)), an increase in $K$ from 2 to 10 causes a clear leftward shift in the forward critical thresholds $\sigma_c^f$.
 This suggests that a higher degree of multiplexity in these relatively homogeneous topologies facilitates the emergence of Turing patterns.
 
 In contrast, the BA network (\cref{fig:layer_impact}(c)) continues to demonstrate a unique robustness in its thresholds ($\sigma_c^f, \sigma_c^b$), which remains nearly invariant as $K$ increases.
 While the onset point in the BA network is insensitive to the layer count, the amplitude of the order parameter $A$ is significantly bolstered.
 This implies that, while the structural heterogeneity of the BA layers dictates the initiation of the instability, the additional layers provide a more extensive substrate that enhances the intensity of the resulting patterns.
-Overall, these results indicate that increasing the number of network layers generally promotes instability and enhances pattern amplitudes, though the specific impact on the onset thresholds is mediated by the underlying intra-layer topology.
+% Overall, these results indicate that increasing the number of network layers generally promotes instability and enhances pattern amplitudes, though the specific impact on the onset thresholds is mediated by the underlying intra-layer topology. # 待删除幅值上升的描述
 
 \section{Conclusion}\label{conclusion}
 

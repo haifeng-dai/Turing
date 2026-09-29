@@ -15,7 +15,7 @@ DYNA.sigma_min = 0;
 DYNA.sigma_max = 35;
 % 0.01 - 35 0.02 - 25
 
-P_VAL = 0.01;           % 指定要测试和绘制的单个 p
+P_VAL = 0.03;           % 指定要测试和绘制的单个 p
 ETA_LIST = linspace(0, 2, 201);
 
 res_dir = fullfile(fileparts(mfilename('fullpath')), 'results');

@@ -11,15 +11,15 @@ TOPO_PARAM = 0.01;  % ER：连接概率 p；WS：重连概率；BA：参数 m；
 cfg.N = 200;
 cfg.K = 5;
 cfg.alpha = 0.05;
-cfg.beta = 0.005;
-cfg.noise = 1;
+cfg.beta = 0 * cfg.alpha;
+cfg.noise = 0.8;
 cfg.T_END = 1000;
 cfg.dt = 0.005;
 cfg.steps = 2001;   % 保存状态数，包含 t = 0 和 T_END
 cfg.init_perturb = 0.1;
 cfg.detect_convergence = false;  % 本脚本需要完整时间轨迹，暂时关闭收敛提前停止
 
-SIGMA_LIST = 20.237:0.0001:20.2375;
+SIGMA_LIST = 80;
 RUN_SIGMA_INDICES = 1:numel(SIGMA_LIST);  % 默认运行全部；可改为 [1 5 10] 等序号子集
 FORCE_RERUN = false;  % true：重算所选 sigma；false：优先使用已有缓存
 INITIAL_SEED = 1;

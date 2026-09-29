@@ -1,12 +1,19 @@
-function sigma_beta_alpha(DYNA, TOPO_TYPE, P_VAL_FIXED, ALPHA_LIST, RATIO_LIST, RUN_SIMULATION)
+function sigma_beta_alpha(DYNA, TOPO_TYPE, P_VAL_FIXED, ALPHA_LIST, RATIO_LIST, RUN_SIMULATION, OUTPUT_PATH)
 %% sigma_beta_alpha.m: 层间耦合(beta)与层内扩散(alpha)对滞回阈值的影响分析
 addpath('simulations', 'networks');
 
 % 数据保存路径
 res_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
 if ~exist(res_dir, 'dir'), mkdir(res_dir); end
-data_path = fullfile(res_dir, sprintf('scan_beta_alpha_%s_N%d_K%d_p%.3f.mat', ...
-    lower(TOPO_TYPE), DYNA.N, DYNA.K, P_VAL_FIXED));
+% OUTPUT_PATH 可选；未提供时沿用原有缓存路径，保持既有调用方式不变。
+if nargin < 7 || isempty(OUTPUT_PATH)
+    data_path = fullfile(res_dir, sprintf('scan_beta_alpha_%s_N%d_K%d_p%.3f.mat', ...
+        lower(TOPO_TYPE), DYNA.N, DYNA.K, P_VAL_FIXED));
+else
+    data_path = OUTPUT_PATH;
+    output_dir = fileparts(data_path);
+    if ~isempty(output_dir) && ~exist(output_dir, 'dir'), mkdir(output_dir); end
+end
 
 %% 2. 核心并行计算区 [64核优化版]
 num_a = length(ALPHA_LIST);

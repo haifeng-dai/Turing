@@ -286,6 +286,11 @@ We sincerely
 
 We sincerely
 
+% 感谢您对BA尺度不变性的认可，以及将其扩展为一个一般性原理的建议。
+% 在图x中，我们理由谱分析额外地绘制了不同拓扑、不同参数下的主模态特征值，发现其尺度不变性来源于其不同参数下主模态特征值的稳定性。
+% 反观 WS 和 ER 图，其主模态特征值的变化较大，不具备尺度不变性。
+% 为此，我们在正文中做了如下修改：
+
 \newpage
 \begin{tcolorbox}[title = {Comment 4},fonttitle = \bfseries]
     To improve readability and ensure the paper’s novelty is immediately apparent to editors and reviewers, I recommend adding a short “Main Contributions” paragraph before the roadmap sentence at the end of the Introduction. This paragraph should succinctly enumerate the core advances of the study (e.g., the novel noise model, the stability condition, the non-monotonic coupling effect, and the BA scale-invariance discovery). A scannable contribution summary greatly facilitates the review process.
@@ -349,7 +354,7 @@ We sincerely thank
 % 针对您提出的细节不清和指标不合适等问题，我们已经进行了修正。
 % 对于您建议用谱分析方法解释我们结果的观点，我们增加了相关解析。
 % 具体内容见下文的逐点回复。
-% 您的建议极大地提升了我们论文的准确性和结果的可解释性，再次表示感谢。
+% 您的建议极大地提升了我们论文的严谨性和结果的可解释性，再次表示感谢。
 
 \leftskip 2em
 \rightskip 2em
@@ -435,6 +440,17 @@ We sincerely thank the reviewer for this highly constructive feedback, and compl
 \bigskip
 
 We sincerely
+% 感谢审稿人指出应该说明噪声和多重网络的影响是否高度耦合，以及您提供的一篇极其相关的工作。
+% 首先，关于您对噪声和层间耦合影响的耦合性的质疑，我们绘制了图x，从图x中，我们可以看到，不同耦合强度下，前后向的阈值和与噪声强度和耦合强度都是相关的，从图x()可以看到，噪声耦合强度的影响并非简单地加性的，而是复杂的耦合关系。
+% 另外，从定理也可以得知，\gamma 的第三项中，噪声和拓扑的影响也并非是简单的加和。
+% 进而可以认定多层结构定性地改变了噪声的影响。
+
+% 然后，关于您提到的工作，它研究的噪声形式与文献[x]一致，是状态本身与uniform stationary state之间的差，从某种意义上需要额外的全局监督信息。
+% 另外，我们在最新版本中，重新将局部噪声引入模型，而非入[x]和[x]那样使用全局噪声，避免了进一步引入全局信息。
+% 至于您提到的不对称现象，我们进行了一个尝试，发现并没有太大的影响，结果如下图所示。
+% 我们认为，这一方面可能来源于噪声本身影响机制的不同；另一方面可能是多重拓扑结构彻底地改变了噪声的影响机制。
+% 对于这一部分，我们并在正文中加入更多的对比，因为增加这一部分的内容需要从头构建模型、修改理论分析、重新调整所有的仿真，但是收益较为有限，没有发现新的现象。
+% 鉴于其提供了乘性噪声影响的另一个有趣视角，我们依然引用了这篇文章，作为文献综述的一部分，具体如下：
 
 \newpage
 \begin{tcolorbox}[title = {Comment 3 Supra-Laplacian and dominant modes},fonttitle = \bfseries]
@@ -507,6 +523,7 @@ We sincerely
 % 因此，我们并未修改 \beta 的归一化。
 % 但是，我们确实意识到使用这样的对比是并不公平的，因而，我们在图6中使用了度为2的层间拓扑。
 % 相应的结果和图已经更新。
+% 如果关于这一点您有更多的问题和建议，欢迎继续讨论。
 
 \newpage
 \begin{tcolorbox}[title = {Comment 5 Turing instability, hysteresis and multistability},fonttitle = \bfseries]
@@ -527,6 +544,7 @@ We sincerely
     \medskip
 
     [1]: https://arxiv.org/abs/2503.16642 "Turing Instability Suppressed and Induced by Multiplicative Noise in Brusselator System"
+
     \zhtranslationfirst{图 2 表明，多层结构同时改变了正向阈值以及正向阈值与反向阈值之间的距离，但二者代表不同的效应。}
     \zhtranslation{正向阈值的变化意味着多层结构改变了线性图灵失稳区域；滞后区间宽度的变化则意味着它还会影响非线性斑图的持续存在，并可能影响均匀态与斑图态的共存。}
 
@@ -547,6 +565,24 @@ We sincerely
 \bigskip
 
 We sincerely
+% 感谢审稿人关于Turing稳定性方面背后机制方面深入的分析和可解释性建议，以及关于滞后现象更严谨地讨论。
+% 首先，多重结构的变化直接改变了超laplacian矩阵主模态的特征值，为证明这一点，我们在图2中绘制了就与超laplacian增长率预测的阈值与实际阈值。
+% 结果表明，在噪声较小时，引起模态变化的主要原因是超图laplacian局长的主模态切换。
+
+% 其次，对于您关于吸引域的讨论，我们认为从多个不同初始状态出发观察最终状态是一种简单的数值验证方式。
+% 我们确实也做了这样的探索，在不同的初始状态下观察其收敛到 uniform stable state 和Turing状态的概率，结果见下图X。
+% 结果表明，不同的层间耦合强度明显改变了吸引域。
+% 但是，我们并未在正文中加入相关分析。
+% 一方面，简单的数值仿真去表明吸引域的变化并不严谨，而对于一个网络化系统，得到吸引域的解析解是不可行的。
+% 另一方面，稳定性和Turing现象的讨论本身就需要假设初始状态在 uniform stable state 附近和 Turing 发生时，对于中间态的讨论意义有限，这更像是对随机动力系统本身的研究。
+% 最后，我们的研究不仅仅是多重耦合下的研究，还有随机噪声的影响。
+% 噪声的随机性会导致耦合的突变，引起节点状态的调变，很容易导致节点从一个平衡解的吸引域跳跃进入另一个平衡解的吸引域，真如图2c所示。
+% 如果您对这部分还有任何建议和问题，欢迎继续提出进行讨论。
+
+% 第三，如前所述，我们补充了对图2的谱分析，结果明确表明，当噪声较小时，这种非线性转变的主要由拓扑的主模态最大特征值决定。
+% 正式主模态的切换导致了这种非线性现象。
+
+% 最后，我们重新绘制的 \Delta \delta 图，结果发现，正如审稿人所说，在噪声的影响下，我们并不能确保滞后现象的消失，我们为之前这一草率的论断进行道歉。
 
 \newpage
 \section*{Response to Reviewer 3}
@@ -633,6 +669,11 @@ We sincerely
 \bigskip
 
 We sincerely
+% 感谢审稿人指出针对随机系统，单次实现不能证明结果的可靠性。
+% 我们进行了多次不同随机种子的验证，结果都十分相似，主要结论并不会改变，仅部分实验中具体数值的轻微变化，但这对于随机试验是可接受的。
+% 当然我们认可审稿人指出的问题，论文中应当充分说明结果在不同随机种子下的可靠性。
+% 针对此，我们对图2b进行了修改，每个实验我们重复5次，并在图中汇报均值方差。
+% 但是图1a、c和d，我们依然保留了单次实现用于展示说明一些之间观察的现象，对于这些结果，我们认为单次实现已经足够说明问题，无需进行统计分析。
 
 \newpage
 \begin{tcolorbox}[title = {Comment 4},fonttitle = \bfseries]
@@ -644,6 +685,10 @@ We sincerely
 \bigskip
 
 We sincerely
+% 感谢审稿人认可层间耦合的非单调性是有意义的，也感谢您指出我们的结论基于过度简化的构型。
+% 为了验证在更广泛的层间和层内拓扑下讨论该现象的一般性，我们在多种异质设定下进行了实验。
+% 具体来说，采用不同的层内拓扑，包括WS，BA，WS、BA、ER的组合等研究该现象。
+% 结果如下：
 
 \newpage
 \begin{tcolorbox}[title = {Comment 5},fonttitle = \bfseries]
@@ -655,6 +700,10 @@ We sincerely
 \bigskip
 
 We sincerely
+% 感谢审稿人认可 BA 网络的支持不变性结果的新颖性，以及关于使用谱分析对该现象进行解释的建议。
+% 我们已经在图x中进行了部分的谱分析，结果表明，谱分析结果能很好地解释图2中的非单调性。
+% 为了更好地探究BA网络的尺度不变性的根本原因，我们在图x中绘制了不同网络拓扑、不同 m (Number of edges to attach from a new node to existing nodes)、不同层数下的最大主模态特征值。
+% 结果表明，对于多种参数选择，其主模态特征值的变化都并不大，而反观 WS 和 ER 图受到影响较大。
 
 
 \end{document}

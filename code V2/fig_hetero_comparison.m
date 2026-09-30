@@ -92,12 +92,8 @@ CONFIG(3).region_x_norms = [0.55, 0.70, 0.55];
 CONFIG(3).region_y_norms = [0.10, 0.50, 0.92];
 
 %% 3. 并行仿真区 (独立计算与落盘)
-seed_file = fullfile(res_dir, 'evolution_er_N200_K5_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat');
-if ~exist(seed_file, 'file')
-    error('未找到基准种子文件 %s，请先运行 pattern_evolution.m 生成参考种子。', seed_file);
-end
-tmp_seed = load(seed_file);
-y_universal_seed = tmp_seed.Y(end, :)';
+% K=3 必须读取三层标准文件，不能将五层种子直接用于三层积分。
+y_universal_seed = load_standard_pattern_seed(DYNA);
 
 % 预加载三种底层网络
 tmp_ba = load(fullfile(res_dir, 'topology', 'BA', 'N200_m4.mat'));

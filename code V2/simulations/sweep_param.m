@@ -30,16 +30,7 @@ cfg.steps = 2;                                % 每个测试点仅取终态，�
 
 %% 4. 获取全局唯一的"斑图种子" (反向扫描的关键)
 % 锁定策略：强制加载由 pattern_evolution.m 生成的全局种子，拒绝任何形式的实时训练以保证数据绝对对齐
-seed_name = sprintf('evolution_er_N%d_K%d_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', cfg.N, cfg.K);
-seed_file = fullfile(fileparts(mfilename('fullpath')), '..', 'results', seed_name);
-
-if ~exist(seed_file, 'file')
-    error('【严重错误】未找到全局种子文件！请先运行 pattern_evolution.m 以生成标准参考种子。');
-end
-
-fprintf('[PRE] 正在加载全局强斑图种子 (sigma=100)...\n');
-tmp_seed = load(seed_file);
-y_seed = tmp_seed.Y(end, :)';
+y_seed = load_standard_pattern_seed(cfg); % 只读，缺失报错
 
 %% 5. 扫描序列生成与任务打包
 % 生成从小到大排列的扩散比序列序列

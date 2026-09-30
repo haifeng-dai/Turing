@@ -46,10 +46,7 @@ if RUN_SIMULATION
 
     % --- B. 【核心改进】加载唯一的全局强斑图种子 (由 pattern_evolution.m 生成) ---
     fprintf('[PRE] 正在加载全局强斑图种子 (sigma=100, p=0.03)...\n');
-    seed_file = fullfile('results', 'evolution_er_N200_K5_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat');
-    if ~exist(seed_file, 'file'), error('找不到全局种子文件，请先运行 pattern_evolution.m！'); end
-    tmp_seed = load(seed_file);
-    y_universal_seed = tmp_seed.Y(end, :)';
+    y_universal_seed = load_standard_pattern_seed(DYNA);
 
     fprintf('[PRE] 正在并行预加载 %d 组拓扑...\n', num_p);
     NET_LIBS = cell(num_p, 1);

@@ -1,12 +1,19 @@
-function sigma_alpha_beta(DYNA, TOPO_TYPE, P_VAL_FIXED, ALPHA_LIST, RATIO_LIST, RUN_SIMULATION)
+function sigma_alpha_beta(DYNA, TOPO_TYPE, P_VAL_FIXED, ALPHA_LIST, RATIO_LIST, RUN_SIMULATION, OUTPUT_PATH)
 %% sigma_alpha_beta.m: 分析层内扩散(alpha)对滞回阈值(sigma)的影响，并对比不同层间耦合强度(beta)
 addpath('simulations', 'networks');
 
 % 数据保存路径
 res_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
 if ~exist(res_dir, 'dir'), mkdir(res_dir); end
-data_path = fullfile(res_dir, sprintf('scan_alpha_ratio_%s_N%d_K%d_p%.3f.mat', ...
-    lower(TOPO_TYPE), DYNA.N, DYNA.K, P_VAL_FIXED));
+% OUTPUT_PATH 可选；新脚本可指定独立保存路径。
+if nargin < 7 || isempty(OUTPUT_PATH)
+    data_path = fullfile(res_dir, sprintf('scan_alpha_ratio_%s_N%d_K%d_p%.3f.mat', ...
+        lower(TOPO_TYPE), DYNA.N, DYNA.K, P_VAL_FIXED));
+else
+    data_path = OUTPUT_PATH;
+    output_dir = fileparts(data_path);
+    if ~isempty(output_dir) && ~exist(output_dir, 'dir'), mkdir(output_dir); end
+end
 
 %% 2. 核心并行计算区 [64核优化版]
 num_a = length(ALPHA_LIST);
@@ -42,10 +49,7 @@ if RUN_SIMULATION
     DYNA.L_inter = diag(sum(adj_inter, 2)) - adj_inter;
 
     % --- C. 加载全局种子 (保证一致性) ---
-    seed_file = fullfile('results', 'evolution_er_N200_K5_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat');
-    if ~exist(seed_file, 'file'), error('找不到全局种子文件，请先运行 pattern_evolution.m！'); end
-    tmp_seed = load(seed_file);
-    y_universal_seed = tmp_seed.Y(end, :)';
+    y_universal_seed = load_standard_pattern_seed(DYNA);
 
     % --- D. 加载固定拓扑网络 ---
     net_path = fullfile('results', 'topology', 'ER', sprintf('N%d_p%.3f.mat', DYNA.N, P_VAL_FIXED));

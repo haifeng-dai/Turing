@@ -29,7 +29,7 @@ DYNA.L_inter = diag(sum(adj_inter, 2)) - adj_inter;
 num_p = length(P_VALS);
 
 % ==========================================
-% 1. 【核心计算区】(缺失时自动生成种子与扫描)
+% 1. 【核心计算区】(读取标准种子与扫描；仅不同 N 可补生成种子)
 % ==========================================
 results_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
 if ~exist(results_dir, 'dir'), mkdir(results_dir); end
@@ -45,17 +45,9 @@ for i = 1:num_p
 end
 
 if any(missing_result)
-    % 检查并自愈标准种子
-    seed_name = sprintf('evolution_er_N%d_K%d_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', ...
-        DYNA.N, DYNA.K);
-    seed_file = fullfile(results_dir, seed_name);
-    if ~exist(seed_file, 'file')
-        fprintf('[INFO] 未检测到种子文件，正在生成参考斑图种子...\n');
-        dyna_seed = DYNA;
-        dyna_seed.sigma = 100;
-        dyna_seed.noise = 0;
-        pattern_evolution(dyna_seed, 'ER', 0.030, false);
-    end
+    % 检查并读取标准种子
+    % 同尺寸只读取统一种子；仅 N~=200 且文件缺失时允许生成。
+    load_standard_pattern_seed(DYNA, true);
 
     fprintf('\n[SIM] 正在运行 %d 组缺失的扫描...\n', sum(missing_result));
     simStart = tic;

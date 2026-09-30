@@ -34,16 +34,7 @@ DYNA.L_inter = diag(sum(adj_inter, 2)) - adj_inter;
 
 if USE_SEED
     fprintf('[PRE] 正在加载全局强斑图种子 (sigma=100) 作为演化初值 (反向模式)...\n');
-    % 使用与 sweep_param.m 相同的标准种子路径逻辑
-    seed_name = sprintf('evolution_%s_N%d_K%d_p%.3f_a%.3f_b%.3f_s100.0_n0.00_fwd_results.mat', ...
-        lower(TOPO_TYPE), DYNA.N, DYNA.K, 0.03, 0.05, 0.005);
-    seed_file = fullfile(fileparts(mfilename('fullpath')), 'results', seed_name);
-
-    if ~exist(seed_file, 'file')
-        error('找不到标准种子文件: %s\n请先设置 USE_SEED=false, sigma=100.0 运行以生成种子。', seed_file);
-    end
-    tmp_seed = load(seed_file);
-    DYNA.y0 = tmp_seed.Y(end, :)';
+    DYNA.y0 = load_standard_pattern_seed(DYNA);
 else
     fprintf('[PRE] 从随机噪声开始模拟 (正向模式)...\n');
     DYNA.y0 = []; % 触发 solve_multiplex 内部的随机初值生成

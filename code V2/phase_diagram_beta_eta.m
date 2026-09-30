@@ -62,16 +62,7 @@ if RUN_SIMULATION
     DYNA.L_inter = diag(sum(adj_inter, 2)) - adj_inter;
 
     % B. 加载全局种子
-    seed_file = fullfile(res_dir, sprintf('evolution_er_N%d_K%d_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', ...
-        DYNA.N, DYNA.K));
-    if ~exist(seed_file, 'file')
-        dyna_seed = DYNA;
-        dyna_seed.sigma = 100;
-        dyna_seed.noise = 0;
-        pattern_evolution(dyna_seed, TOPO_TYPE, 0.030, false);
-    end
-    tmp_seed = load(seed_file);
-    y_universal_seed = tmp_seed.Y(end, :)';
+    y_universal_seed = load_standard_pattern_seed(DYNA, true);
 
     % C. 加载拓扑网络
     net_path = fullfile(res_dir, 'topology', 'ER', sprintf('N%d_p%.3f.mat', DYNA.N, P_VAL_FIXED));

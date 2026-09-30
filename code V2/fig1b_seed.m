@@ -16,14 +16,14 @@ DYNA.sigma_min = 0;
 DYNA.sigma_max = 35;
 
 % 扫描配置：外层遍历 P_LIST，内层遍历 SEED_LIST
-P_LIST = [0.02, 0.04, 0.06]; % 配置需要对比的多个 p
+P_LIST = [0.09]; % 配置需要对比的多个 p
 ETA_LIST = linspace(0, 2, 201);
 SEED_LIST = 1:5;             % 重复实验种子列表
 if numel(SEED_LIST) < 2 || numel(unique(SEED_LIST)) ~= numel(SEED_LIST)
     error('SEED_LIST 至少需要包含两个互不重复的随机种子。');
 end
 
-FORCE_RERUN = true;         % 是否强制重算: true = 强制重新计算, false = 优先读取已有缓存
+FORCE_RERUN = false;         % 是否强制重算: true = 强制重新计算, false = 优先读取已有缓存
 res_dir = fullfile(script_dir, 'results');
 test_plots_dir = fullfile(script_dir, 'fig');
 if ~exist(test_plots_dir, 'dir'), mkdir(test_plots_dir); end
@@ -56,16 +56,7 @@ for p_idx = 1:num_p
         data_path = fullfile(res_dir, data_name);
 
         if FORCE_RERUN || ~exist(data_path, 'file')
-            seed_file = fullfile(res_dir, sprintf( ...
-                'evolution_er_N%d_K%d_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', ...
-                DYNA.N, DYNA.K));
-            if ~exist(seed_file, 'file')
-                rng(0, 'twister');
-                dyna_seed = DYNA;
-                dyna_seed.sigma = 100;
-                dyna_seed.noise = 0;
-                pattern_evolution(dyna_seed, TOPO_TYPE, 0.03, false);
-            end
+            load_standard_pattern_seed(DYNA, true);
 
             dyna_run = DYNA;
             dyna_run.noise_seed = cur_seed;

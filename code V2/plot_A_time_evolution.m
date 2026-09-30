@@ -60,55 +60,17 @@ adj_inter = ones(cfg.K) - eye(cfg.K);
 cfg.L_inter = diag(sum(adj_inter, 2)) - adj_inter;
 
 %% 3. 加载缓存并运行所选 sigma
-% 先准备与当前网络和模型参数一致的无噪声 Turing 初态。
+% 所有拓扑及模型参数复用同尺寸的项目标准斑图，不生成参数专属初态。
 results_dir = fullfile(script_dir, 'results');
 if ~exist(results_dir, 'dir'), mkdir(results_dir); end
 topology_info = dir(topology_file);
 
-seed_file = fullfile(results_dir, sprintf( ...
-    'A_time_turing_seed_%s_N%d_K%d_topo%.8g_netbytes%d_netmtime%.10f_a%.6g_b%.6g_T%.6g_dt%.6g_steps%d_init%.6g_iseed%d.mat', ...
-    lower(TOPO_TYPE), cfg.N, cfg.K, TOPO_PARAM, topology_info.bytes, ...
-    topology_info.datenum, cfg.alpha, cfg.beta, cfg.T_END, cfg.dt, ...
-    cfg.steps, cfg.init_perturb, INITIAL_SEED));
-
-if exist(seed_file, 'file')
-    seed_data = load(seed_file, 'turing_seed');
-    turing_seed = seed_data.turing_seed;
-else
-    fprintf('[种子] 未找到匹配的 Turing 初态，开始生成 sigma=100、无噪声种子。\n');
-    seed_cfg = cfg;
-    seed_cfg.sigma = 100;
-    seed_cfg.noise = 0;
-    seed_cfg.detect_convergence = true;
-    seed_cfg.y0 = [];
-    rng(INITIAL_SEED, 'twister');
-    [~, Y_seed, ~] = solve_multiplex(seed_cfg);
-    turing_seed = Y_seed(end, :)';
-
-    seed_u = turing_seed(1:cfg.N * cfg.K);
-    seed_v = turing_seed(cfg.N * cfg.K + 1:end);
-    seed_A = sqrt(sum((seed_u - 5).^2 + (seed_v - 10).^2) / (cfg.N * cfg.K));
-    if ~isfinite(seed_A) || seed_A <= 0.02
-        error('sigma=100 生成的种子未形成明显 Turing 态（A=%.8g）。', seed_A);
-    end
-
-    temp_seed_file = strrep(seed_file, '.mat', '_tmp.mat');
-    save(temp_seed_file, 'turing_seed', 'seed_A', '-v7');
-    [saved, message] = movefile(temp_seed_file, seed_file, 'f');
-    if ~saved
-        error('Turing 初态种子保存失败：%s', message);
-    end
-    fprintf('[种子] 已保存 Turing 初态，A=%.8g：%s\n', seed_A, seed_file);
-end
-
-if numel(turing_seed) ~= 2 * cfg.N * cfg.K
-    error('Turing 初态长度与当前 N、K 不匹配：%s', seed_file);
-end
+[turing_seed, seed_file] = load_standard_pattern_seed(cfg, true);
 seed_info = dir(seed_file);
 
 % 缓存按 sigma 和初态类型分别保存；每完成一条曲线就写盘，意外中断后可续跑。
 cache_file = fullfile(results_dir, sprintf( ...
-    'A_time_evolution_cache_%s_N%d_K%d_topo%.8g_netbytes%d_netmtime%.10f_seedbytes%d_seedmtime%.10f_a%.6g_b%.6g_n%.6g_T%.6g_dt%.6g_steps%d_init%.6g_iseed%d_nseed%d.mat', ...
+    'A_time_evolution_sharedseed_cache_%s_N%d_K%d_topo%.8g_netbytes%d_netmtime%.10f_seedbytes%d_seedmtime%.10f_a%.6g_b%.6g_n%.6g_T%.6g_dt%.6g_steps%d_init%.6g_iseed%d_nseed%d.mat', ...
     lower(TOPO_TYPE), cfg.N, cfg.K, TOPO_PARAM, ...
     topology_info.bytes, topology_info.datenum, seed_info.bytes, ...
     seed_info.datenum, cfg.alpha, cfg.beta, ...

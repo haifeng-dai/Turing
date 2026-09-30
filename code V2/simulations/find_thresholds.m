@@ -33,18 +33,13 @@ epsilon  = 0.05;                % 二分法的搜索精度，当区间小于此�
 if isfield(cfg, 'y_seed') && ~isempty(cfg.y_seed)
     y_seed = cfg.y_seed;
 else
-    % --- 【修订】强制从磁盘读取全局唯一 100 种子以保证全项目一致性 (拒绝实时训练回退) ---
-    seed_file = fullfile(fileparts(mfilename('fullpath')), '..', 'results', ...
-        sprintf('evolution_%s_N200_K5_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', lower(topo_type)));
-
-    if exist(seed_file, 'file')
-        fprintf('[PRE] 正在从磁盘加载全局强斑图种子 (sigma=100)...\n');
-        tmp = load(seed_file, 'Y');
-        y_seed = tmp.Y(end, :)';
-    else
-        % --- 拒绝触发 solve_multiplex 生成随机种子，强制要求手动生成 ---
-        error('【严重错误】未找到全局种子: %s\n请先以 USE_SEED=false, sigma=100 运行以生成标准斑图库。', seed_file);
-    end
+    seed_cfg = cfg;
+    seed_cfg.K = size(cfg.L_inter,1);
+    y_seed = load_standard_pattern_seed(seed_cfg); % 只读，绝不在搜索中生成
+end
+if ~isnumeric(y_seed) || ~isreal(y_seed) || ...
+        numel(y_seed)~=2*cfg.N*size(cfg.L_inter,1) || any(~isfinite(y_seed(:)))
+    error('find_thresholds:InvalidSeed','斑图初值长度必须等于 2*N*K，且所有数值有限。');
 end
 
 %% 5. 第一阶段：二分查找探测 sigma_f (正向扫描分叉点)

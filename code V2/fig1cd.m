@@ -35,15 +35,8 @@ for i = 1:2
     fprintf("\n%s\n", mat_name)
 
     if ~exist(file_path, 'file')
-        seed_name = sprintf('evolution_%s_N%d_K%d_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', ...
-            lower(TOPO_TYPE), DYNA.N, DYNA.K);
-        seed_file = fullfile(results_dir, seed_name);
-        if ~exist(seed_file, 'file')
-            dyna_seed = DYNA;
-            dyna_seed.sigma = 100;
-            dyna_seed.noise = 0;
-            pattern_evolution(dyna_seed, TOPO_TYPE, TOPO_PARAM, false);
-        end
+        % 同尺寸只读取统一种子；仅 N~=200 且文件缺失时允许生成。
+        load_standard_pattern_seed(DYNA, true);
 
         dyna_run = DYNA;
         dyna_run.noise = cur_noise;

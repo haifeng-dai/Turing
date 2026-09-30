@@ -34,7 +34,7 @@ FORCE_RERUN = false; % true: 强制重算并覆盖旧数据；false: 优先读�
 % ==========================================
 % 2. 【核心计算区】(批量运行滞后扫描)
 % ==========================================
-% 只在扫描结果缺失或强制重算时生成标准种子并运行对应噪声的扫描
+% 只在需要扫描时读取标准种子，不因噪声参数改变而生成新的初态
 missing_result = false(size(ETA_LIST));
 for i = 1:length(ETA_LIST)
     mat_name = sprintf('hysteresis_%s_N%d_K%d_p%.3f_a%.3f_b%.3f_n%.2f_results.mat', ...
@@ -43,15 +43,8 @@ for i = 1:length(ETA_LIST)
 end
 
 if any(missing_result)
-    seed_name = sprintf('evolution_er_N%d_K%d_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', ...
-        DYNA.N, DYNA.K);
-    seed_file = fullfile(results_dir, seed_name);
-    if ~exist(seed_file, 'file')
-        dyna_seed = DYNA;
-        dyna_seed.sigma = 100;
-        dyna_seed.noise = 0;
-        pattern_evolution(dyna_seed, TOPO_TYPE, TOPO_PARAM, false);
-    end
+    % 同尺寸只读取统一种子；仅 N~=200 且文件缺失时允许生成。
+    load_standard_pattern_seed(DYNA, true);
 
     fprintf('\n[INFO] 正在运行 %d 组缺失的滞后扫描 (Parallel)...\n', sum(missing_result));
     simStart = tic;

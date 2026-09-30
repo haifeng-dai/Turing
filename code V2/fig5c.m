@@ -37,7 +37,7 @@ for i = 1:num_k
 end
 
 % ==========================================
-% 1. 【核心计算区】(缺失时自动生成种子与扫描)
+% 1. 【核心计算区】(读取标准种子与扫描；仅不同 N 可补生成种子)
 % ==========================================
 results_dir = fullfile(fileparts(mfilename('fullpath')), 'results');
 if ~exist(results_dir, 'dir'), mkdir(results_dir); end
@@ -55,17 +55,9 @@ end
 if any(missing_result)
     for i = find(missing_result)
         dyna_local = DYNA_list{i};
-        % 检查并自愈该层数 K 对应的标准种子
-        seed_name = sprintf('evolution_er_N%d_K%d_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', ...
-            dyna_local.N, dyna_local.K);
-        seed_file = fullfile(results_dir, seed_name);
-        if ~exist(seed_file, 'file')
-            fprintf('[INFO] 未检测到种子文件 %s，正在生成参考斑图种子...\n', seed_name);
-            dyna_seed = dyna_local;
-            dyna_seed.sigma = 100;
-            dyna_seed.noise = 0;
-            pattern_evolution(dyna_seed, 'ER', 0.030, false);
-        end
+        % 读取匹配 K 的标准种子；N=200 缺失时不自动生成
+        % 同尺寸只读取统一种子；仅 N~=200 且文件缺失时允许生成。
+        load_standard_pattern_seed(dyna_local, true);
 
         fprintf('[SIM] 现正扫描缺失数据: K=%d, m=%d ...\n', dyna_local.K, M_BA);
         sweep_param(TOPO_TYPE, M_BA, dyna_local);

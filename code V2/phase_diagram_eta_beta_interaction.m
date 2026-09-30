@@ -45,16 +45,11 @@ end
 
 net_path = fullfile(project_dir, 'results', 'topology', 'ER', ...
     sprintf('N%d_p%.3f.mat', DYNA.N, TOPO_PARAM));
-seed_path = fullfile(project_dir, 'results', ...
-    sprintf('evolution_%s_N200_K5_p0.030_a0.050_b0.005_s100.0_n0.00_fwd_results.mat', ...
-    lower(TOPO_TYPE)));
 if ~exist(net_path, 'file'), error('找不到网络文件: %s', net_path); end
-if ~exist(seed_path, 'file'), error('找不到全局斑图种子: %s', seed_path); end
 
 net_data = load(net_path, 'nets');
-seed_data = load(seed_path, 'Y');
 L_intra_lib = net_data.nets;
-y_universal_seed = seed_data.Y(end, :)';
+y_universal_seed = load_standard_pattern_seed(DYNA);
 
 adj_inter = ones(DYNA.K) - eye(DYNA.K);
 DYNA.L_inter = diag(sum(adj_inter, 2)) - adj_inter;

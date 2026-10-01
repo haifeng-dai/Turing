@@ -230,12 +230,27 @@ We sincerely thank the reviewer for this highly constructive feedback, and compl
 % 本文的出发点基于以下两个方面：1. 不同文献汇报噪声和层间耦合对Turing形成是不同的，比如文献[37]本身就汇报了层间耦合对不同参数下的系统的影响相反。同样的，噪声的具体影响也存在不同。无法直接地从已有文献中推定层间耦合与噪声对系统影响的定性分析。2. 目前的研究几乎都是在特定参数下研究系统的动力学行为，缺乏统一的框架将参数、拓扑、噪声等多种因素的协同影响进行定性分析。
 % 为了明确地在文中点出上述动机，我们修改了引言的最后一段{XXX}，具体如下：
 
+We thank the reviewer for this constructive suggestion.
+We agree that the original gap statement did not sufficiently explain why combining multiplex topology with state-dependent multiplicative noise poses a nontrivial problem.
+We have therefore revised the Introduction to clarify both the interaction mechanism and the limitations of extrapolating from previous studies.
+Specifically, multiplex topology determines the intra-layer and inter-layer pathways through which local state differences drive diffusion and stochastic fluctuations.
+Because the noise amplitudes depend on these evolving state differences, the effects of topology, diffusion, and noise are coupled rather than simply additive.
+Furthermore, inter-layer coupling may promote or suppress Turing instability depending on the dynamical parameters, while previous multiplicative-noise results concern specific noise formulations.
+Their separate conclusions therefore do not directly establish the behavior of the combined system considered here.
+The revised Introduction now frames this coupled stability problem as the central motivation for our work and identifies the need for a unified framework that jointly characterizes network topology, diffusion parameters, and noise.
+The revised passage reads:
+
 \leftskip 2em
 \rightskip 2em
 \medskip
 
-``To
-% XXX
+\noindent
+``
+Existing studies have shown that the effect of inter-layer coupling on multiplex-networked activator-inhibitor systems depends sensitively on the underlying dynamical parameters, and that it may either promote or suppress Turing instability under different conditions.
+Meanwhile, existing studies of multiplicative noise have largely focused on specific noise formulations, and whether their conclusions remain valid for stochastic fluctuations driven by local state differences is still unclear.
+In particular, multiplex topology determines the intra-layer and inter-layer pathways along which local state differences drive both deterministic diffusion and stochastic fluctuations. These fluctuations, in turn, modify the state differences on which their amplitudes depend, coupling the effects of topology, diffusion, and noise.
+When such state-dependent noise acts jointly with multiplex network structure, system stability may depend not only on the individual effects of these factors but also on their interactions.
+Moreover, a unified stability framework capable of jointly characterizing the effects of network topology, diffusion parameters, and noise remains lacking.
 ''
 
 \leftskip 0em

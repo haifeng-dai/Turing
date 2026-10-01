@@ -12,6 +12,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{cleveref}
+\usepackage{soul}
+
 \crefname{figure}{Fig.}{Figs.}
 
 \crefformat{theorem}{Theorem~#2#1#3}
@@ -37,6 +39,10 @@
 \newcommand{\ik}{_{k=1}^{K}}
 \newcommand{\inn}{_{i=1}^{N}}
 \newcommand{\md}{\mathrm{d}}
+
+\soulregister{\cite}7
+\definecolor{b}{rgb}{0.73, 0.85, 0.9}
+\newcommand{\hlb}[1]{\sethlcolor{b}\hl{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Begin. 开始
@@ -136,7 +142,12 @@ For instance, demographic and intrinsic fluctuations have been shown to induce r
 Both theoretical analyses and experimental observations demonstrate that stochastic fluctuations, typically modeled as additive noise, can significantly enlarge the parameter space conducive to Turing instability \cite{Biancalani2010,Karig2018}.
 While much research in the recent literature focuses on additive noise, which operates independently of the system's states, fluctuations in many real-world systems are inherently multiplicative.
 In these scenarios, the noise intensity is coupled to the system's states, a characteristic that can induce qualitatively different dynamics compared to additive noise.
-Addressing this, it is demonstrated in \cite{Xiao2023} that multiplicative noise can decrease critical thresholds and maintain the stability of the system, where the noise intensity is proportional to the deviation from a uniform stationary state.
+
+\hlb{Recent studies have considered the effects of multiplicative noise and reported qualitatively different behaviors.
+When both the activator and inhibitor are subjected to noise, increasing the noise intensity can enhance the stability of the uniform stationary state, implying that multiplicative noise suppresses the emergence of Turing patterns \cite{Xiao2023,Khan2025}.
+More interestingly, when the noise acts only on either the activator or the inhibitor, it can instead destabilize the system and facilitate Turing pattern formation \cite{Khan2025}.
+However, these studies adopt a rather specific noise formulation, in which the multiplicative noise intensity is assumed to be proportional to the deviation from the uniform stationary state, while the same noise process is applied throughout the system.
+Such a formulation requires prior knowledge of the uniform stationary state and, at the same time, introduces an additional global correlation into the stochastic perturbations.}
 
 % Despite these advances, the study of Turing patterns in general multiplex networks remains relatively underexplored, with the effects of multiplicative noise being largely overlooked.
 % This paper aims to bridge this gap by investigating the Turing instability of multiplex-networked activator-inhibitor systems under the influence of multiplicative noise.
@@ -157,6 +168,35 @@ Addressing this, it is demonstrated in \cite{Xiao2023} that multiplicative noise
 % 2. 随后，基于Lyapunov随机稳定性理论，推导出多重网络几乎处处渐近稳定的充分条件，从而为系统的稳定性定性分析提供了理论依据。
 % 3. 基于Mimura-Murray模型的实验揭示了层间耦合对稳定性和Turing形成的影响的非单调性。并且发现乘性噪声能够降低正向和反向相变阈值，从而促进Turing的形成。
 % 4. 特别的，我们发现了相变阈值在BA网络中表现出的一种独特的尺度不变性，与WS和ER网络的尺度敏感性形成了鲜明的对比。
+
+% 已有研究表明，层间耦合对多重网络化激活抑制系统的影响依赖于具体的动力学参数，在不同条件下可能促进或抑制图灵失稳。另一方面，现有乘性噪声研究主要针对特定的噪声形式，其结论能否推广至由局部状态差驱动的随机涨落，仍有待探究。当这类状态依赖噪声与多重网络结构共同作用时，系统的稳定性不仅受到各因素的单独影响，还可能取决于它们之间的相互作用，因而难以直接从单层随机系统或确定性多重网络的已有结果中推断。此外，仍需一个能够综合刻画拓扑结构、扩散参数与噪声协同影响的稳定性分析框架。为此，本文研究局部状态差依赖的乘性噪声作用下，多重网络化激活抑制系统的稳定性与图灵斑图形成，并结合理论分析和数值模拟探究这些因素的共同作用。本文的主要贡献如下：
+% 1. 基于多重网络框架，构建了具有状态依赖乘性噪声的网络化激活抑制系统。噪声同时作用于层内和层间扩散过程，其强度与相邻节点的状态差成正比，从而刻画局部相互作用中的随机涨落。
+% 2. 基于随机微分方程稳定性理论，推导了系统几乎必然渐近稳定的充分条件。该条件将节点动力学、扩散参数、拓扑谱性质与噪声强度纳入统一的分析框架，为定性研究这些因素对系统稳定性的协同影响提供了理论依据。
+% 3. 通过基于 Mimura–Murray 模型的数值模拟，揭示了噪声与多重网络结构对图灵斑图形成的耦合影响。特别地，层间耦合呈现非单调作用，并在较强耦合下表现出饱和行为，说明其影响不能简单概括为促进或抑制图灵失稳。
+% 4. 通过比较不同拓扑、网络规模和层数下的图灵阈值，发现 BA 网络在所考察范围内表现出独特的尺度稳健性，与 ER 和 WS 网络的尺度敏感性形成鲜明对比。这一结果提示，拓扑异质性可能是决定多重网络中图灵斑图形成的重要因素。
+Existing studies have shown that the effect of inter-layer coupling on multiplex-networked activator-inhibitor systems depends sensitively on the underlying dynamical parameters, and that it may either promote or suppress Turing instability under different conditions.
+Meanwhile, existing studies of multiplicative noise have largely focused on specific noise formulations, and whether their conclusions remain valid for stochastic fluctuations driven by local state differences is still unclear.
+In particular, multiplex topology determines the intra-layer and inter-layer pathways along which local state differences drive both deterministic diffusion and stochastic fluctuations. These fluctuations, in turn, modify the state differences on which their amplitudes depend, coupling the effects of topology, diffusion, and noise.
+When such state-dependent noise acts jointly with multiplex network structure, system stability may depend not only on the individual effects of these factors but also on their interactions.
+Moreover, a unified stability framework capable of jointly characterizing the effects of network topology, diffusion parameters, and noise remains lacking.
+Motivated by these issues, this work investigates the stability and Turing pattern formation of multiplex-networked activator-inhibitor systems subject to multiplicative noise driven by local state differences, combining theoretical analysis with numerical simulations to elucidate their joint effects.
+The main contributions are summarized as follows:
+\begin{enumerate}
+	\item We formulate a multiplex-networked activator-inhibitor system with state-dependent multiplicative noise. The noise acts on both intra-layer and inter-layer diffusion processes, with its intensity proportional to the state differences between neighboring nodes, thereby capturing stochastic fluctuations arising from local interactions.
+	\item Based on the stability theory of stochastic differential equations, we derive a sufficient condition for the almost sure asymptotic stability of the system. The resulting criterion incorporates the local node dynamics, diffusion parameters, spectral properties of the network topology, and noise intensity within a unified analytical framework, providing a theoretical basis for qualitatively characterizing their combined effects on system stability.
+	\item Numerical simulations based on the Mimura–Murray model reveal the coupled effects of multiplicative noise and multiplex network structure on Turing pattern formation. In particular, inter-layer coupling exhibits a non-monotonic influence and approaches a saturation regime at sufficiently strong coupling, indicating that its role cannot be simply characterized as either promoting or suppressing Turing instability.
+	\item By comparing the Turing thresholds across different network topologies, network sizes, and numbers of layers, we find that BA networks exhibit distinctive scale robustness over the parameter ranges considered, in sharp contrast to the pronounced scale sensitivity observed in ER and WS networks. These results suggest that topological heterogeneity may play an important role in determining the onset of Turing patterns in multiplex networks.
+\end{enumerate}
+
+% 已有研究表明，多重网络化激活抑制系统中，层间耦合在不同情况下可能表现出完全相反的影响。
+% 而已有研究所考虑的乘性噪声较为特殊，更一般的乘性噪声会对激活抑制系统的稳定性会有什么样的影响尚未可知。
+% 进一步地，乘性噪声对多重网络化激活抑制系统的稳定性表现无法直接从已有的结果中直接推测得出。
+% 另一方面，当前缺乏一个统一的方法对拓扑、参数、噪声等多种参数的协同影响进行定性分析。
+% 基于上述讨论，我们提出了带有乘性噪声的多重网络化激活抑制系统，其中节点受到的噪声强度正比于其与邻居状态之间的差值。
+% 并基于随机微分方程稳定性理论，提出了一个新的稳定性分析方法，用于定性研究噪声、拓扑和参数对激活抑制系统稳定性的影响。
+% 仿真结果表明，噪声和拓扑结构对Turing出现的影响是高度耦合的，且多重网络层间耦合强度的影响是非单调的。
+% 有趣的是，发现 BA 网络表现出一种独特的尺度不变性，这表明拓扑异质性对多重网络的稳定性可能起到决定性作用。
+% 本文主要贡献如下：
 
 The remainder of this paper is organized as follows.
 \cref{multiplex} formulates the deterministic and stochastic multiplex-networked activator-inhibitor systems.
@@ -205,7 +245,7 @@ For instance, interacting populations such as predators and prey often navigate 
 Recent advances in network studies elegantly captured these real-world intricacies through the framework of multiplex networks, where identical sets of nodes reside in distinct layers and are linked by inter-layer couplings.
 Despite the ubiquity of such multifaceted structures, our understanding of how inter-layer coupling affects the Turing instability of activator-inhibitor systems remains highly constrained.
 
-Consider a multiplex networked activator-inhibitor systems consisting of $N$ nodes and $K$ layers with local dynamics described by
+Consider a multiplex networked activator-inhibitor system consisting of $N$ nodes and $K$ layers with local dynamics described by
 \begin{equation}\label{origin}
 	\begin{aligned}
 		\dot{u}_i\kk & = f(u_i\kk,v_i\kk) + \alpha\sum_{j=1}^N a\kk_{ij} (u_j\kk - u_i\kk) + \beta\sum_{l=1}^K b_{kl} (u_i^{(l)} - u_i\kk),             \\
@@ -325,7 +365,7 @@ The following theorem provides a sufficient condition for the stochastic stabili
 			    & V(e_0) + \int_0^t \Big[ V_e(e_s) [h(\bar x + e_s) - h(\bar x) - \alpha (\ml \otimes \varsigma) e_s]                                                                                                                                                                                                            \\
 				                        & ~~~~~~~~~~~~~~~~~~ + \frac12\mathrm{Tr}([-\eta \alpha (\ml \otimes \varsigma) e_s]\tp V_{ee} [(-\eta \alpha (\ml \otimes \varsigma)) e_s]) \Big] \md s + \int_0^t V_e [- \eta \alpha (\ml \otimes \varsigma) e_s] \md W(s)  \\
 			=   & V(e_0) + \int_0^t \left[ \frac{e_s\tp [h(\bar x + e_s) - h(\bar x)]}{e_s\tp e_s} - \alpha \frac{e_s\tp (\ml \otimes \varsigma) e_s}{e_s\tp e_s}\right.                                                                                                                                                                 \\
-				                        & ~~~~~~~~~~~~~~~~~~ + \left.\frac{\eta^2\alpha^2}2 \mathrm{Tr}\big(e_s\tp (\ml \otimes \varsigma)\tp \big(\frac{e_s\tp e_s - 2e_s e_s\tp}{(e_s\tp e_s)^2}\big) (\ml \otimes \varsiga) e_s\big) \right] \md s - \eta \alpha \int_0^t \frac{e_s\tp (\ml \otimes \varsigma) e_s}{e_s\tp e_s} \md W(s) \\
+				                        & ~~~~~~~~~~~~~~~~~~ + \left.\frac{\eta^2\alpha^2}2 \mathrm{Tr}\big(e_s\tp (\ml \otimes \varsigma)\tp \big(\frac{e_s\tp e_s - 2e_s e_s\tp}{(e_s\tp e_s)^2}\big) (\ml \otimes \varsigma) e_s\big) \right] \md s - \eta \alpha \int_0^t \frac{e_s\tp (\ml \otimes \varsigma) e_s}{e_s\tp e_s} \md W(s) \\
 			\le & V(e_0) + \int_0^t \left[ \ell - \alpha \lambda_2\sigma_{\min} + \frac{\eta^2\alpha^2}2 \frac{e_s\tp (\ml \otimes \varsigma)\tp (\ml \otimes \varsigma) e_s}{e_s\tp e_s} - \eta^2\alpha^2 \frac{e_s\tp (\ml \otimes \varsigma)\tp e_s e_s\tp (\ml \otimes \varsigma) e_s}{e_s\tp e_s} \right] \md s - \mathcal M_t  \\
 			\le & V(e_0) + [\ell - \alpha \lambda_2\sigma_{\min} + \frac12 \eta^2\alpha^2\lambda_{NK}^2\sigma_{\max}^2 - \eta^2\alpha^2\lambda_2^2\sigma_{\min}^2] t - \mathcal M_t,
 		\end{aligned}
@@ -734,6 +774,9 @@ Future research could extend this framework to incorporate directed multiplex ne
 
 	\bibitem{Xiao2023}
 	Xiao R, Gao Q, Azaele S, et al. Effects of noise on the critical points of Turing instability in complex ecosystems. Phys Rev E, 2023, 108: 014407
+
+	\bibitem{Khan2025}
+	Khan Q, Suen A, Tang B Q. Stochastic Turing patterns in complex ecosystems. Commun. Nonlinear Sci Numer Simul, 2025, 115: 109092.
 
 	\bibitem{Barabasi1999}
 	Barab\'asi A-L, Albert R. Emergence of scaling in random networks. Science, 1999, 286: 509--512
